@@ -242,6 +242,15 @@ a {
   letter-spacing: .05em;
   color: black
 }
+.fr_h2_center_grey_reg  {
+  font-family: europa;
+  font-weight: 300;
+  font-size: 1.7em;
+  line-height: 1.45em;
+  text-align: center;
+  letter-spacing: .05em;
+  color: grey
+}
 .fr_persona_one_4 {
   float: none;
   display: block;
