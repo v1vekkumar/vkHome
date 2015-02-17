@@ -387,10 +387,8 @@ a {
   margin-top: -4.5009765625em;
   margin-right: auto;
   margin-left: auto;
-  padding-top: 80px;
-  padding-bottom: 80px;
-  background-color: white;
-  min-height: 35.0751953125em
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 .fr_paragraph_center_grey {
   font-family: europa;
@@ -466,7 +464,7 @@ a {
   margin-right: auto;
   margin-bottom: 20px;
   margin-left: auto;
-  max-width: 600px
+  max-width: 900px
 }
 .fr_hd7_description .fr-text {
   min-width: 100%
@@ -486,7 +484,7 @@ a {
   width: 90%;
   margin-right: auto;
   margin-left: auto;
-  max-width: 600px
+  max-width: 900px
 }
 .fr_hd7_paragraph_2 .fr-text {
   min-width: 100%
@@ -514,7 +512,7 @@ a {
   margin-right: auto;
   margin-bottom: 20px;
   margin-left: auto;
-  max-width: 600px
+  max-width: 900px
 }
 .fr_hd7_name_2 .fr-text {
   min-width: 100%
@@ -522,8 +520,8 @@ a {
 .fr_header_7_2 {
   margin-right: auto;
   margin-left: auto;
-  padding-top: 80px;
-  padding-bottom: 80px;
+  padding-top: 40px;
+  padding-bottom: 100px;
   background-color: white
 }
 .fr_in_icon_svg_two_3 .fr-svg-inner {

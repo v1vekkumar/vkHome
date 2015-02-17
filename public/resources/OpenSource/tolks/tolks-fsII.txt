@@ -1,0 +1,99 @@
+	                 
+              VHLK-II on Filesystem Support in Kernel. 
+
+   let us see  fs implementations ;-------------
+          proc fs for example......
+/usr/src/linux/include/linux/proc_fs.h defines
+        struct proc_dir_entry and many other enums.
+    all files(if not mentioned otherwise) are in /usr/src/linux/fs/proc/ 
+ mounting is done by the mount(2) syscall which calls do_mount() function in 
+VFS layer which calls read_super()(also in VFS).read_super() calls the 
+function proc_read_super() which will be explained below.....
+
+Other files and their contents include the following 
+   
+                            1. inode.c  
+  
+  ++static struct super_operations proc_sops 
+        :: operations specific to proc fs is declared here.
+                               (likewise for all fs-types)
+  
+  
+  
+  ++struct super_block *proc_read_super(struct super_block *s,
+             void *data,int silent) 
+        ::calls proc_root_init() first.
+          then initializes "struct super_block *s" fields 
+              after lock_super()(later on unlock_super() s)
+              eg:s_magic with fs identifier,s_op with &proc_sops
+          then inode no of root_inod is obtained as
+              (s->s_mounted = proc_get_inode(s, PROC_ROOT_INO, &proc_root)
+          which stores root inode in s->s_mounted.       
+          atlast parse_options(data, &s->s_mounted->i_uid, 
+                                              &s->s_mounted->i_gid);
+          which processes mount option data and sets uid and gid 
+          to inode s->s_mounted(ie owner of root inode). 
+
+   
+ 
+  ++struct inode *proc_get_inode(struct super_block * s, int ino, 
+                                       struct proc_dir_entry * de)
+         ::ino is inode number        
+               just calls iget(s,ino) and returns the inode struct that
+               it got from iget() if (not (inode && inode->i_sb == s))
+                  ie if iget returned NULL or superblock of inode is not s.
+ ?????\\an interesting instant of fs-dependant code accessing VFS-layer??? 
+ ????? when will the second case take place? and is it an error?
+               If the above check is correct(iget didnot return NULL and 
+                  inode->i_sb ==s ) then struct inode members are given 
+                  struct de values
+ ????? why is it given de values??
+
+    
+    
+    ++void proc_read_inode(struct inode * inode)
+      Accessing the fs is done by accessing the root inode of the system.
+The first access of root inode is made from proc_read_super() and if the 
+inode doesnot exist,proc_read_inode() is called(It is in proc_sops).   
+         ::inode structure first initailized with  default values.
+           some important statements follow..........
+           but all these are very much directory dependent....
+           allmost all the rest of proc_fs operations are 
+                                        directory/file-dependent 
+ ???? why is         pid = ino >> 16;  where ino is inode number....
+           
+          it seems difficult to add new file to proc dir dynamically...
+          which is taken care by functions declared in include/linux/proc_fs.h                     
+ PROC FS HAS MOSTLY DIR-DEPENDENT CODE...A NICE THING TO HACK SEPARATELY  
+           
+one thing....in the whole system more than one file/directory can be of 
+inode number 1  but these will be from different filesystems.....
+    static struct file_operations and struct inode_operations  are 
+initialized for different file types (ie for root dir,links,other files
+which include even special files like net/ etc).
+
+
+
+                                2.root.c
+ 
+    is also important and has important,dir-independent functions
+ struct proc_dir_entry declared in include/linux/proc_fs.h makes in-memory
+*tree* of directories in proc fs.
+        contains definitions of directory entry of all the dirs and subdirs 
+in procfs.eg.for dirs like net/,scsi/,and / .
+
+
+     
+
+
+==========================================================================
+ That was Proc filesystem.It is very much easier to understand than 
+other filesystems because others have to take care of the storage on disk 
+and many such related issues.
+       so let us study ext2fs here............
+some important definitions and structures are in
+           /usr/src/linux/include/linux/ext2_fs.h,
+                                        ext2_fs_sb.h        
+                                        ext2_fs_i.h
+  
+

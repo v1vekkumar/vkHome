@@ -1,0 +1,424 @@
+<html>
+                 vhlk-general will contain other good 
+info i gathered from the postings of different people in different mailing
+                             lists like
+         linux-admin,linux-kernel,linux-net @vger.rutgers.edu
+
+ some interesting notes,conditions etc.
+----------------------------------------
+1.  A file is deleted from the medium when the link count of the inode 
+    is zero.but a file can exist even after the link count is zero that is
+    when process holds it(the file) open after unlinking it.
+2.  Looking at fs/ext2/namei.c:ext2_create, you can see that the inode
+    is allocated with ext2_new_inode. Then, the directory is modified with
+    ext2_add_entry. Finally, if in synchronous mode, create waits for
+    the directory be written back to disk.
+    In asynchronous mode, the disk driver might chose to write back
+    in a different order, so all other kinds of corruptions might happen.
+                From: Martin von Loewis <martin@mira.isdn.cs.tu-berlin.de>
+3.  How does the kernel access user area while the process is running in kernel
+    mode?
+        Go to /usr/src/linux/include/asm*/irq.h and read SAVE_ALL macro.
+    This is called anytime there is a context-switch from user_to_kernel mode.
+    ie This is included in the syscall.So FS register will hold the pointer to 
+    user area(as can be seen from the macro-definition).Now for kernel to 
+    access user area or user data structures,it has to use this pointer stored
+    in FS.It becomes very simple in this case.
+    But what if process in user mode wants to access kernel area or kernel 
+    data structures? It is(SHOULD) NOT possible for security reasons.         
+    
+
+    TIMER
+--------------
+       'jiffies' store a hundredth of a second.udelay() makes the kernel 
+sleep for more than this much amount of time.But it blocks the whole kernel 
+while working.
+
+
+**************************************************************************
+
+
+super_block locking
+-------------------
+
+> Strangely, fs/super.c doesn't use super block locking in read_super() to
+> access s_dev, s_flags, s_rd_only, s_dirt, and s_type
+> 
+> So when should we use this lock?
+
+The lock prevents access by others WAITING on the super.
+If you don't wait (or try to lock the super), there is
+no locking effect.
+
+1)  Lock the super when you don't want it to change.
+2)  Lock the super when you want to change it.
+3)  Lock the super when you want to access multiple
+    fields in an inter-dependent manner.
+
+The super is always up-to-date, except before it is in
+use (no kidding), which includes read_super() before
+it returns success. Locking the super before this prevents
+races from two mount operations. Note that there is a separate
+lock preventing mount/umount races.
+
+Or so it seems to me...
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>posting by:
+               Andrew E. Mileski   mailto:aem@netcom.ca
+
+
+***************************************************************************
+
+
+INODE-wrong comments
+--------------------
+
+ext2_fs.h:      __u32   i_ctime;        /* Creation time */
+sysv_fs.h:      unsigned long i_ctime;  /* time of creation */
+ufs_fs.h:       struct timeval ui_ctime;        /* 0x20 creation */
+umsdos_fs.h:    time_t          ctime;          /* Creation time */
+
+These might be wrong too:
+
+msdos_fs.h:     __u8    ctime_ms;       /* Creation time, milliseconds */
+msdos_fs.h:     __u16   ctime;          /* Creation time */
+
+(how does one fit milliseconds in a __u8 variable?)
+	
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>posting by
+            "Albert D. Cahalan"          <acahalan@cs.uml.edu>
+
+
+***************************************************************************
+ 
+           Subject: Re: [Q] the limited size of vmlinuz ?
+
+>The size of vmlinuz is limited (at least on the x86 platform) is because
+>when the kernel is being loaded into memory the processor is in real mode,
+>and only has conventional memort to work with (<640K).  The real reason
+>behind this is that the bootloader needs the bios to load the kernel into
+>memory, which only works in real mode.  bzImage tries to get around that
+>by having the boot loader load the kernel into extended memory one chunk
+>at a time (ie load chunk using bios, switch to prot. mode, copy to ext
+>mem, switch back to real mode, etc.) thereby eliminating the size
+
+   Why does it have to do the mode switching?  Doesn't the LOADALL
+instruction work for this?  What about going to VM86 mode and calling the
+BIOS from there?
+
+       "Russell Coker - mailing lists account" <bofh@snoopy.virtual.net.au>
+*****************************************************************************
+
+Subject: Re: max file descriptors
+
+> Also, if someone could shed some light on what OPEN_MAX and NR_OPEN
+> control and how they differ, that would be helpful as well.
+Sure. It's been a while, but I hope that this helps:
+
+There are basically 2 limits to filedescriptors:
+
+1) Per process filedescriptors
+2) Overall system filedescriptors
+
+With a threaded program (or a 'huge select loop' like squid) you quite often
+hit the first limit. If you have 50 established connections to your program
+you use 50 FD's... plus for files you read etc... I made my initial patch
+for squid... and Michael made a better one for an even heavier loaded squid.
+This is normally set at 256.
+
+With apache, though, you don't have one process... you have lots, and they
+don't all have all the FD's open at the same time.... if you have 256
+processes running at once (all using a few FD's) then you could hit the
+overall system limit.
+
+To change the per-process limit you normally have to recompile with the
+new settings. (otherwise you are stuck with the old limits still). But the
+overall system FD's used aren't known by any process, so you can change those
+without a problem.
+
+To see how many FD's your system has used overall type this:
+[root@kasmilos kernel]# cat /proc/sys/kernel/file-nr  
+1680
+
+(this is on our FTP server - lots of processes with a few FD's each...)
+Note that the number never goes down, so if you have a burst of usage then
+you can't tell when it disappears....
+
+To see what your overall limit is, type this:
+[root@kasmilos kernel]# cat /proc/sys/kernel/file-max 
+4096
+
+This means that between all of my processes I can open 4096 FD's.
+
+If my 'file-nr' value was close to 'file-max' I could increase it by putting
+something like this in my 'rc.local':
+
+#Increase systemwide filehandle max
+/bin/echo 4096 >/proc/sys/kernel/file-max
+/bin/echo 12288 > /proc/sys/kernel/inode-max
+
+Note that if you increase the 'file-max' value you MUST increase the
+'inode-max' value, and normally in the same ratio (double one, double the
+other)
+
+To find out how many FD's a running process is using, do this:
+
+[root@kasmilos kernel]# cat /usr/local/lib/httpd/logs/httpd.pid 
+5616
+[root@kasmilos kernel]# ls -l /proc/5616/fd/ | wc -l
+     15
+
+means it's using 15 FD's.... if this was close to 256 (in the default config
+or 1024 in your new kernel) then you would have a problem. (You may also have
+to check the child processes to see if they are the possible cause).
+
+Hope that this helps...
+
+Oskar
+
+===============================================================================
+Note:    same topic as above but a different answer
+
+Subject: Re: max file descriptors (fwd)
+
+
+> > And what about linux/include/linux/tasks.h:
+> > #define NR_TASKS 512
+> > #define NR_TASKS_PER_USER (NR_TASKS/2)
+> 
+> Looks like that was the problem.. I increased NR_TASKS to 4096 and it
+> solved the problem..
+
+The max value for NR_TASKS is about 4092, as a task uses two
+descriptors (TSS and LDT), and the kernel reserves 8, and APM
+uses 3 if enabled. This also uses 64k for the GDT.
+
+This only applies to x86 though.
+
+--
+Andrew E. Mileski   mailto:aem@netcom.ca
+
+******************************************************************************
+
+
+Subject: Re: questions on page cache and buffers
+
+
+There are a number of function pointers that a file system can
+implement as part of a read() call, and generic_ versions of
+them that most file systems use.
+
+The buffer cache is a "physically indexed" cache; the buffers
+(512 bytes to 4K bytes, each sharing a page with other buffers of
+the same size and each with a buffer_head structure) are indexed
+by device and block number.  Generally only meta-data pages (inodes,
+bitmaps, superblock, etc.) are here.
+
+The page cache is "virtually indexed" based on inode and offset.
+File data is generally stored here.  I/O to the physical device
+checks the buffer cache and uses it if the data is there, but 99%
+of the time, the data is not there.
+
+There's a file->read pointer, which most file systems point to
+generic_file_read (in mm/filemap.c) which does some hairy read-ahead
+manipulation, and ends up calling inode->readpage().
+
+Most file systems also use the generic_readpage function, which
+is implemented in terms of inode->bmap(), which they *do* provide.
+generic_readpage breaks the page up into buffers of the appropriate
+size for the file system and calls inode->bmap() to find the
+location on disk of each of them.  There are three cases
+- the block number is 0, meaning it should be zero-filled.
+  (currently, all-zero pages don't share storage with the
+  system all-zero page, but this could be changed)
+- The block is in the buffer cache, in which case it is copied over, and
+- The block is nowhere to be found (the usual case).  For all of these
+  blocks, generic_readpage (and generic_writepage, for that
+  matter) allocate a temporary buffer_head and use it to start the I/O.
+
+When the last buffer_head finishes I/O, the buffer_head chain is
+deallocated and the page is marked present.  (free_async_buffers())
+
+Most of these shenanigans take place in fs/buffer.c
+
+Note that while changes made to the page cache data get reflected to the
+buffer cache eventually, the reverse is NOT guaranteed to happen.
+Accessing a raw device (through the buffer cache) while it is mounted
+(and parts of its data are in the page cache) is generally NOT a good
+idea.  (It IS safe as long as you stick to meta-data and avoid
+any actual file data.  I'm not sure about directories.)
+
+Anyway, read() write() and mmap() all use the page cache for the
+"main" data, at least in the usual case.
+
+If you're implementing something, be sure to choose the level at which
+you hook into the read() system properly.
+
+
+For a memory/swap file system, I'm not quite clear on what you need,
+but it's a combination of the "private" mapping code (with the
+file_private_mmap vm_operations_struct so pages get sent to swap space)
+but you want your pages to be indexed in the page cache.  That may
+require some tweaking of the swap_in code.
+
+I think you just want everything in the page cache, some completely
+anonymous pages for metadata, and some indexed pages for file data.
+Doing that, 99% of file accesses will be hits in the page cache and
+you don't have to worry about I/O to them at all.
+-- 
+                     Colin Plumb <colin@nyx.net>
+****************************************************************************
+
+From: Martin von Loewis <martin@mira.isdn.cs.tu-berlin.de>
+
+Subject: Re: lack of raw disk devices
+
+
+>. What the hell is the difference a RAW block device and a
+> (err.... NONRAW?) regular block device?
+
+Depends on whom you talk to :-) In a traditional (BSD style?) raw
+device, read/write-operations from/to a raw device do not use the
+disk cache. This has two effects:
+- repeated disk access to the same location is slower
+- if the system crashes, there are no unflushed buffers
+- memory consumption is lower
+(well, that's three effects). Linux supports only the second one.
+
+Database implementors are especially interested in the second
+property, as it is a pre-requisite for safe transactions: the DB needs
+to know that the data is really on the disk when the write(2) call
+returns, so that recovery can occur should the system fail later.
+
+Even though you cannot disable the read cache in Linux, you can have
+the second of these properties, by given O_SYNC to the open(2) call.
+So you can disable the write caching if you want. There seems some
+dissense whether applications want to disable the read cache as well.
+
+Hope this helps,
+Martin von Loewis <martin@mira.isdn.cs.tu-berlin.de>
+
+******************************************************************************
+
+From: Colin Plumb <colin@nyx.net>
+
+Subject: Re: questions on page cache and buffers
+
+
+I was figuring this out myself.  I'm in the process of writing this
+up properly (in Documentation/vfs.txt), but here's a quick overview...
+
+There are a number of function pointers that a file system can
+implement as part of a read() call, and generic_ versions of
+them that most file systems use.
+
+The buffer cache is a "physically indexed" cache; the buffers
+(512 bytes to 4K bytes, each sharing a page with other buffers of
+the same size and each with a buffer_head structure) are indexed
+by device and block number.  Generally only meta-data pages (inodes,
+bitmaps, superblock, etc.) are here.
+
+The page cache is "virtually indexed" based on inode and offset.
+File data is generally stored here.  I/O to the physical device
+checks the buffer cache and uses it if the data is there, but 99%
+of the time, the data is not there.
+
+There's a file->read pointer, which most file systems point to
+generic_file_read (in mm/filemap.c) which does some hairy read-ahead
+manipulation, and ends up calling inode->readpage().
+
+Most file systems also use the generic_readpage function, which
+is implemented in terms of inode->bmap(), which they *do* provide.
+generic_readpage breaks the page up into buffers of the appropriate
+size for the file system and calls inode->bmap() to find the
+location on disk of each of them.  There are three cases
+- the block number is 0, meaning it should be zero-filled.
+  (currently, all-zero pages don't share storage with the
+  system all-zero page, but this could be changed)
+- The block is in the buffer cache, in which case it is copied over, and
+- The block is nowhere to be found (the usual case).  For all of these
+  blocks, generic_readpage (and generic_writepage, for that
+  matter) allocate a temporary buffer_head and use it to start the I/O.
+
+When the last buffer_head finishes I/O, the buffer_head chain is
+deallocated and the page is marked present.  (free_async_buffers())
+
+Most of these shenanigans take place in fs/buffer.c
+
+Note that while changes made to the page cache data get reflected to the
+buffer cache eventually, the reverse is NOT guaranteed to happen.
+Accessing a raw device (through the buffer cache) while it is mounted
+(and parts of its data are in the page cache) is generally NOT a good
+idea.  (It IS safe as long as you stick to meta-data and avoid
+any actual file data.  I'm not sure about directories.)
+
+Anyway, read() write() and mmap() all use the page cache for the
+"main" data, at least in the usual case.
+
+If you're implementing something, be sure to choose the level at which
+you hook into the read() system properly.
+
+
+For a memory/swap file system, I'm not quite clear on what you need,
+but it's a combination of the "private" mapping code (with the
+file_private_mmap vm_operations_struct so pages get sent to swap space)
+but you want your pages to be indexed in the page cache.  That may
+require some tweaking of the swap_in code.
+
+I think you just want everything in the page cache, some completely
+anonymous pages for metadata, and some indexed pages for file data.
+Doing that, 99% of file accesses will be hits in the page cache and
+you don't have to worry about I/O to them at all.
+-- 
+	-Colin
+*******************************************************************************
+From: "David S. Miller" <davem@jenolan.rutgers.edu>
+
+
+Subject: Re: question on 'current' task macro, init_task
+
+   Date: 	Sun, 17 Aug 1997 18:54:36 -0700 (PDT)
+   From: Darin Johnson <darin@connectnet.com>
+
+   I'm baffled by the i386 'current' macro.  It appears to just take
+   the stack pointer and round it down to the next 8K alignment.  How
+   can this work if the stack is larger than 8K and far removed from
+   the task_struct?  Or is current only used for the kernel threads?
+
+Kernel stack is only for the kernel.  On nearly all architectures
+things look like:
+
+kernel stack	-------------------------
+		|	PAGE 2		|
+		-------------------------
+		|	PAGE 1		|
+		| ... bottom of kstack  |
+		| struct task_struct	|
+current  -->	-------------------------
+
+Later,
+David "Sparc" Miller
+davem@caip.rutgers.edu
+
+*******************************************************************************
+
+From: Darin Johnson <darin@connectnet.com>
+
+Subject: Re: question on 'current' task macro, init_task
+
+ > Kernel stack is only for the kernel.  On nearly all architectures
+ > things look like:
+
+Ah, of course; 'current' is only used in the context of the kernel,
+and the kernel gets a stack from the task_struct when in interrupts or
+system calls.  Too many details scattered over too many files...
+
+*******************************************************************************
+
+
+
+
+
+
+
+
+

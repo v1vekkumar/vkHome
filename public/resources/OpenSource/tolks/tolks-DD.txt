@@ -1,0 +1,358 @@
+                      vhlk-DEVICE DRIVERS section
+
+/usr/src/linux/drivers/
+  
+
+I. CHARACTER DEVICES
+    linux/drivers/char   directory.
+
+                         1.terminal driver...
+          it spans the following files
+                  console.c
+                  consolemap.c
+ 		  vt.c
+ 		  tty_io.c
+		  tty_ioctl.c
+
+   and  the following header files
+                  console_struct.h
+                  consolemap.h
+   		  
+               linux/include/linux
+                  tty.h
+		  tty_driver.h
+		  tty_flip.h
+		  tty_ldisc.h
+ 		  vt.h
+ 		  console.h
+ and (maybe) many others
+        
+The number of files as above is a enough to scare 
+	  
+  and still many others ... I Donot understand a bit of what is happening here.
+so there may be many mistakes. I will correct them later when I find it. 
+  
+   
+     first data strucures used and their meanings
+  
+ 1. fg_console    drivers/char/tty_io.c    current virtual console(VERY IMP)
+ 2. last_console  drivers/char/tty_io.c    last used one
+ 3. want_console  drivers/char/tty_io.c    console we want to switch to
+ 4. kmsg_console  drivers/char/tty_io.c    console for kernel messages
+ 5. vt_struct     drivers/char/vt_kern.h   console num,mode of op etc.
+ 6. *vt_cons[]    drivers/char/vt_kern.h   it is array of struct vt_struct 
+                                           which contains members 
+                                               vc_num  : console number
+                    			       vc_mode : console mode.
+ 7. tty_struct    include/linux/tty.h      state associated with a tty while 
+                      	                   it is open
+ 8. tty_driver    include/linux/tty_driver.h  	      
+                                           for driver-related data like maj no
+				           minor no ranges etc.There is only 
+  					   driver from ->minor_start to ->num
+ 9. tty_ldisc     include/linux/tty_ldisc.h
+            				   line desciplines are members.
+10. tty_drivers   drivers/char/tty_io.c    linked list of tty drivers
+11. vc_cons       drivers/char/console.c   an array of vc structs.
+12. vc            drivers/char/console_struct.h
+                                           pointer to struct vc_data which 
+    					   contains low-level info on vc
+13.  
+
+
+
+*******************************************************************************
+===============================================================================
+*******************************************************************************
+
+II.   PCI
+
+linux/include/pci.h
+    
+     In PCI, each device has 256 bytes of configuration address space.
+ First 32 are standardized as below
+
+                       -------------------------------------------------
+		       |                                               |
+0x00  PCI_VENDOR_ID    |                            	               |
+                       -------------------------------------------------
+                       |                                               |
+0x02  PCI_DEVICE_ID    |                                               |
+                       -------------------------------------------------
+     (enable x)        |     |     |     |     |     |     |     |   IO| 
+0x04  PCI_COMMAND      |     |     |     |     |     |     |     |     |
+                       -------------------------------------------------  
+                       |     |     |     |     |     |     |     |     |
+0x06  PCI_STATUS       |     |     |     |     |     |     |     |     |
+ 		       -------------------------------------------------
+                       |                                               |
+0x08  PCI_CLASS_       |                                               |
+        REVISION       |                                               |
+                       |                                               |
+                       -------------------------------------------------
+0x0c ..CACHE_LINE_SIZE |                                               |
+                       -------------------------------------------------
+0x0d PCI_LATENCY_TIMER |                                               |
+                       -------------------------------------------------
+0x0e PCI_HEADER_TYPE   |                                               |
+                       -------------------------------------------------
+0x0f  PCI_BIST         |                                               |
+                       -------------------------------------------------
+
+
+     The Next 32 bytes are used to store base address etc as below
+ 
+                            -------------------------------------------------
+0x10  PCI_BASE_ADDRESS_0    |                                               |
+0x14  PCI_BASE_ADDRESS_1    |                                               |
+0x18  PCI_BASE_ADDRESS_2    |                                               |
+0x1c  PCI_BASE_ADDRESS_3    |                                               |
+0x20  PCI_BASE_ADDRESS_4    |                                               |
+0x24  PCI_BASE_ADDRESS_5    |                                               |
+                            -------------------------------------------------
+0x28  PCI_CARDBUS_CIS       |                                               |
+                            -------------------------------------------------
+0x2c  PCI_SUBSYSTEM_ID      |                                               |
+                            -------------------------------------------------
+0x2e PCI_SUBSYSTEM_VENDOR_ID|                                               |
+                            -------------------------------------------------
+0x30 PCI_ROM_ADDRESS        |                                               |
+                            |                                               |
+                            |                                               |
+                            |                                               |
+                            -------------------------------------------------
+0x34 -0x3b reserved         |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+                            -------------------------------------------------
+0x3c PCI_INTERRUPT_LINE     |                                               |
+                            -------------------------------------------------
+0x3d PCI_INTERRUPT_PIN      |                                               |
+                            -------------------------------------------------
+0x3e PCI_MIN_GNT            |                                               |
+                            -------------------------------------------------
+0x3f PCI_MAX_LAT            |                                               |
+                            -------------------------------------------------
+
+ This file also has a long list of PCI_CLASS'es ,PCI_DEVICE_ID_'s  
+                and PCI_VENDOR_ID_'s
+
+        
+ linux/include/linux/bios32.h
+          
+          
+          #define's all the error values that may be returned by PCI bios
+          and declares pci_* functions which are defined in 
+               linux/arch/i386/kernel/bios32.c
+            
+ linux/drivers/pci/pci.c
+           
+          
+        first, a  look at the main data structs defined
+   
+       1.  struct  pci_dev_info     -----------------
+                                   |      vendor     |   vendor id   
+        linux/include/linux/pci.h   ----------------- 
+                                   |      device     |   device id 
+                                    ----------------- 
+                                   |     *name       |  device name   
+                                    ----------------- 
+                                   |    bridge_type  | bridge_type(bridge/0xff)
+                                    -----------------
+       
+       
+       2.  dev_info[]  is a sorted array of the above type.
+                            (linux/drivers/pci/pci.c)
+       
+       3.  struct  pci_bus          ------------------------
+                                   |                        |
+        linux/include/linux/pci.h  |  pointers to parent    |  
+                                   |    pci_bus             |
+                                    ------------------------
+                                   |    pointers to         |
+                                   |     bridge device      |
+                                    ------------------------
+                                   |  for sys-specific extn |
+                                    ------------------------
+                                   |       bus number       |
+                                    ------------------------           
+                                   | no of primary bridge   |
+                                    ------------------------
+                                   | no of secondary bridge |
+      				    ------------------------
+                                   | max subordinate buses  |
+ 			            ------------------------ 
+ 
+   PCI views devices specially.from the comments,
+
+   " The PCI interface treats multi-function devices as independent
+     devices."
+     slot and function address of each device in encoded in a single byte
+               with bits 0,1,2  :: function
+                      3,4,5,6,7 :: slot
+     there is one pci_dev struct for each  slot-number,function-number 
+                                            combination.                  
+                                           
+       
+
+      4.    struct  pci_dev      
+                                    ----------------
+          struct pci_bus <<--------|       *bus     |
+      bus this device is on         ----------------
+                                   |    *sibling    |-------->>struct pci_dev
+                                    ----------------        next device on bus
+                                   |     *next      |-------->>chain of all 
+                                    ----------------              devices
+       (void *)sys specific extn   |    *sysdata    |
+                                    ----------------
+      encoded device & fn index    |      devfn     |
+                                    ----------------
+                                   |     vendor     |
+                                    ----------------
+                                   |     device     |
+                                    ----------------
+            3 bytes                |     class      |
+                                    ----------------
+                                      master     |  |
+        if device is master capable ---------------- 
+ 			           |      irq       |
+                                    ----------------
+
+
+   functions in linux/drivers/pci/pci.c
+            
+   ++const char *pci_strclass (unsigned int class)
+         ::according to the value of class and as per #define's in 
+         linux/include/linux/pci.h,the class name as sring s returned
+
+    
+   ++const char *pci_strvendor(unsigned int vendor)
+         ::same as above but,value taken and returned string are of vendor 
+        
+    
+   ++struct pci_dev_info *pci_lookup_dev(unsigned int vendor, unsigned int dev)
+         ::does a good binary search on the device_info[]  array 
+         to match vendor and dev information.
+         returns the matched pci_dev_info struct.
+         
+   ++const char *pci_strdev(unsigned int vendor, unsigned int device)
+         ::gets a pci_dev_info  structure filled in by pci_lookup_dev()
+         and returns the "char *name" member of the struct which has the name 
+         of the device as string. 
+   
+   
+   ++static int sprint_dev_config(struct pci_dev *dev, char *buf, int size)
+????????????
+
+  
+   ++int get_pci_list(char *buf)
+         ::gets PCI devices as a character string by going through  the linked
+         list pci_devices and calling sprint_dev_config. 
+?????????? 3 more functions...LATER
+
+
+
+functions in /usr/src/linux/arch/i386/kernel/bios32.c (Thanx,Shyamal Pandya)
+            ........................ARCHITECTURE DEPENDENT___CODE.
+   
+  The functions here are lowest layer for PCI-related work above
+  PCI-BIOS routines.These use bios routines to do the work
+  (that is  how I understand).Since PCI-configuration memory is not available 
+  to the device driver for writing/reading,these functions are mostly used.
+           
+  
+  ++static unsigned long bios32_service(unsigned long service)
+         ::goes to a service at bios32_indirect which is a structure defined 
+         here with address and segment as members and this is initialized with
+         0 and KERNEL_CS respectively.
+         if the ax register now has
+               0  then  address+entry is the entry point for the given service.
+                       and return that.
+             0x80  then service is not present
+             others  ... _should not happen_
+                   return 0.
+
+   
+
+
+   ++extern unsigned long check_pcibios(unsigned long memory_start, 
+                                                unsigned long memory_end)
+         ::checks for PCI_SERVICE by bios32_service() and pcibios_entry  is 
+         updated accordingly.the address returned by bios32_service() is stored
+         (as address) in pci_indirect structure which is same as 
+         bios32_indirect structure.
+         call pci_indirect again and check for PCIBIOS_PCI_BIOS_PRESENT
+         and returned pack has the status information and revision info.
+         signature is also returned and with that error checking is done.
+         
+   
+ 
+  ++int pcibios_present(void)
+        ::if pcibios_entry is 0 still,pcibios is not present as in the 
+        check_pcibios(),it is set to an appropriate value.
+
+  
+
+  ++int pcibios_find_class (unsigned int class_code, unsigned short index,
+                           unsigned char *bus, unsigned char *device_fn)
+  ++int pcibios_find_device (unsigned short vendor, unsigned short device_id,
+           unsigned short index, unsigned char *bus, unsigned char *device_fn)
+        ::both these functions call the routine at pci_indirect with 
+        proper code in ax and cx having class_code and deice_id respectively
+        in dx.
+
+    
+
+   ++int pcibios_read_config_byte(unsigned char bus,unsigned char device_fn, 
+                                   unsigned char where, unsigned char *value)
+   ++int pcibios_read_config_word (unsigned char bus,unsigned char device_fn, 
+                                   unsigned char where, unsigned short *value)
+   ++int pcibios_read_config_dword (unsigned char bus,unsigned char device_fn,
+                                   unsigned char where, unsigned int *value)
+         ::these routines read a byte,word,double word respectively from the
+         PCI configuration memory.
+         where should have offset in one device's config memory as #define's
+         in pci.h say.The details with offsets are given at the top of this.
+         bus should have bus number.
+         dev_fn is to have encoded slot-function number combination.
+         byte,word or double word that is read is put into value.
+  
+
+
+   similar funtions with *_write_* also exists.
+
+
+
+
+   ++unsigned long pcibios_init(unsigned long memory_start, 
+                                                    unsigned long memory_end)  
+          ::read the  comments 
+       * Follow the standard procedure for locating the BIOS32 Service
+       * directory by scanning the permissible address range from
+       * 0xe0000 through 0xfffff for a valid BIOS32 structure.
+          this standard procedure followed is as follows
+           --from address 0xe0000 to 0xffff0 which is traversed using the union
+             union bios32 * ie 16 bytes accessed at one time and the following
+             check is  made for getting the service directory
+                   signature field of the above union is BIOS32_SIGNATURE which
+                           is _32_
+                   length field is not zero  
+                   and checksum is correct (what is revision for??)
+             bios32_entry and bios32_indirect.address is updated with 
+              fields.entry member of the union that was the result of the above
+              search.
+            and if PCI config option was selected, go to check_pcibios().
+        
+//////a nice routine,BUt I donot see any use of those memory_start and 
+/////memory_end which are never used in all these.may be in other architecures?
+             
+                   
+                
+
+  
+
+
+
+
+
+
+
+

@@ -1,0 +1,1188 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 9">
+<meta name=Originator content="Microsoft Word 9">
+<link rel=File-List
+href="./Developing%20Pseudo%20Reliable%20Code_files/filelist.xml">
+<title>Developing Pseudo-Reliable Code Development </title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Vivek Kumar</o:Author>
+  <o:Template>Normal</o:Template>
+  <o:LastAuthor>Vivek Kumar</o:LastAuthor>
+  <o:Revision>2</o:Revision>
+  <o:TotalTime>88</o:TotalTime>
+  <o:Created>2004-03-04T19:41:00Z</o:Created>
+  <o:LastSaved>2004-03-04T19:41:00Z</o:LastSaved>
+  <o:Pages>7</o:Pages>
+  <o:Words>2963</o:Words>
+  <o:Characters>16892</o:Characters>
+  <o:Lines>140</o:Lines>
+  <o:Paragraphs>33</o:Paragraphs>
+  <o:CharactersWithSpaces>20744</o:CharactersWithSpaces>
+  <o:Version>9.3821</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:ActiveWritingStyle Lang="EN-US" VendorID="64" DLLVersion="131078"
+   NLCheck="1">1</w:ActiveWritingStyle>
+  <w:ActiveWritingStyle Lang="EN-US" VendorID="64" DLLVersion="131077"
+   NLCheck="1">1</w:ActiveWritingStyle>
+  <w:DoNotHyphenateCaps/>
+  <w:PunctuationKerning/>
+  <w:DrawingGridHorizontalSpacing>6 pt</w:DrawingGridHorizontalSpacing>
+  <w:DrawingGridVerticalSpacing>6 pt</w:DrawingGridVerticalSpacing>
+  <w:DisplayHorizontalDrawingGridEvery>0</w:DisplayHorizontalDrawingGridEvery>
+  <w:DisplayVerticalDrawingGridEvery>3</w:DisplayVerticalDrawingGridEvery>
+  <w:UseMarginsForDrawingGridOrigin/>
+  <w:DoNotShadeFormData/>
+  <w:Compatibility>
+   <w:FootnoteLayoutLikeWW8/>
+   <w:ShapeLayoutLikeWW8/>
+   <w:AlignTablesRowByRow/>
+   <w:ForgetLastTabAlignment/>
+   <w:LayoutRawTableWidth/>
+   <w:LayoutTableRowsApart/>
+  </w:Compatibility>
+ </w:WordDocument>
+</xml><![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+@font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:2;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:0 268435456 0 0 -2147483648 0;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:553679495 -2147483648 8 0 66047 0;}
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";
+	color:windowtext;}
+h2
+	{mso-style-next:Normal;
+	margin:0in;
+	margin-bottom:.0001pt;
+	text-align:justify;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:2;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	color:windowtext;
+	font-weight:bold;}
+h3
+	{margin-right:0in;
+	mso-margin-top-alt:auto;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	mso-outline-level:3;
+	font-size:13.5pt;
+	font-family:"Times New Roman";
+	color:black;
+	font-weight:bold;}
+p.MsoCommentText, li.MsoCommentText, div.MsoCommentText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";
+	color:windowtext;}
+span.MsoCommentReference
+	{mso-ansi-font-size:8.0pt;
+	mso-bidi-font-size:8.0pt;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	mso-text-animation:none;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+p
+	{margin-right:0in;
+	mso-margin-top-alt:auto;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";
+	color:black;}
+pre
+	{margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt;
+	font-size:10.0pt;
+	font-family:"Courier New";
+	mso-fareast-font-family:"Times New Roman";
+	color:windowtext;}
+p.BalloonText, li.BalloonText, div.BalloonText
+	{mso-style-name:"Balloon Text";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:Tahoma;
+	mso-fareast-font-family:"Times New Roman";
+	color:windowtext;}
+p.CommentSubject, li.CommentSubject, div.CommentSubject
+	{mso-style-name:"Comment Subject";
+	mso-style-parent:"Comment Text";
+	mso-style-next:"Comment Text";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";
+	color:windowtext;
+	font-weight:bold;}
+span.msoIns
+	{mso-style-type:export-only;
+	mso-style-name:"";
+	text-decoration:underline;
+	text-underline:single;
+	color:fuchsia;}
+ /* Page Definitions */
+@page
+	{mso-page-border-surround-header:no;
+	mso-page-border-surround-footer:no;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 67.5pt 1.25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+@list l0
+	{mso-list-id:190609541;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-917473958 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l0:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.25in;
+	mso-level-number-position:left;
+	margin-left:.25in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l1
+	{mso-list-id:506098316;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1568154620 1407511466 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l1:level1
+	{mso-level-start-at:0;
+	mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;
+	font-family:Symbol;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+@list l2
+	{mso-list-id:645819273;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1934790706 67698699 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l2:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l3
+	{mso-list-id:1160536846;
+	mso-list-template-ids:-895565434;}
+@list l3:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4
+	{mso-list-id:1188912529;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1585970020 67698699 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l4:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l5
+	{mso-list-id:1190410177;
+	mso-list-template-ids:1397788658;}
+@list l5:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l6
+	{mso-list-id:1419712275;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-212415526 67698699 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l6:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l7
+	{mso-list-id:1608855213;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-552537920 67698699 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l7:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:.25in;
+	mso-level-number-position:left;
+	margin-left:.25in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l8
+	{mso-list-id:1636909683;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-419785092 67698699 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l8:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:.25in;
+	mso-level-number-position:left;
+	margin-left:.25in;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l9
+	{mso-list-id:1749770683;
+	mso-list-template-ids:-389398316;}
+@list l9:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l9:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:"Courier New";}
+@list l9:level3
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l9:level4
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l9:level5
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:"Courier New";}
+@list l9:level6
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l9:level7
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l9:level8
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:"Courier New";}
+@list l9:level9
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l10
+	{mso-list-id:1763188265;
+	mso-list-template-ids:-1966034186;}
+@list l10:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11
+	{mso-list-id:1917477783;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-389398316 67698699 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l11:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l12
+	{mso-list-id:1923683287;
+	mso-list-type:hybrid;
+	mso-list-template-ids:96233444 2127346810 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l12:level1
+	{mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;}
+@list l13
+	{mso-list-id:2018968639;
+	mso-list-type:hybrid;
+	mso-list-template-ids:454854786 67698699 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l13:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Wingdings;}
+@list l3:level1 lfo2
+	{mso-level-start-at:0;
+	mso-level-number-format:alpha-upper;
+	mso-level-numbering:continue;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:0in;
+	text-indent:0in;}
+@list l10:level1 lfo3
+	{mso-level-start-at:0;
+	mso-level-number-format:alpha-upper;
+	mso-level-numbering:continue;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:0in;
+	text-indent:0in;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+</head>
+
+<body lang=EN-US link=blue vlink=purple style='tab-interval:.5in;text-justify-trim:
+punctuation'>
+
+<div class=Section1>
+
+<p class=MsoNormal align=center style='text-align:center;mso-pagination:none;
+mso-layout-grid-align:none;text-autospace:none'><b>Pseudo-Reliable Code
+Development <o:p></o:p></b></p>
+
+<p class=MsoNormal align=center style='text-align:center;mso-pagination:none;
+mso-layout-grid-align:none;text-autospace:none'><b>&nbsp;&nbsp;&nbsp;&nbsp; aka<o:p></o:p></b></p>
+
+<p class=MsoNormal align=center style='text-align:center;mso-pagination:none;
+mso-layout-grid-align:none;text-autospace:none'><b>Achieving Higher Reliability
+with Low Cost.<o:p></o:p></b></p>
+
+<p class=MsoNormal align=center style='text-align:center;mso-pagination:none;
+mso-layout-grid-align:none;text-autospace:none'><b><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></b></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><a name="_Toc438004491"><span style='mso-bidi-font-weight:
+bold'>Arguably the most important software development problem is, building
+software to customer </span><span style='color:black'>demands that is more
+reliable, faster and cheaper.<span style="mso-spacerun: yes">  </span>Success
+in meeting these demands affects the market share and profitability of a
+product. These demands conflict, due to the very fact that the </span>cost and
+time required to implement reliability is extremely high. While these high
+costs can be justified in developing complex, expensive systems for use in
+aircrafts, medical devices or mission critical applications, they cannot be in
+commercial products.</a></p>
+
+<span style='mso-bookmark:_Toc438004491'></span>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'>This article describes a <span style='mso-bidi-font-weight:
+bold'>reactive methodology</span>,<span style='color:lime'> </span>which
+focuses on detecting an error and correcting it, rather than using traditional
+proactive methodology to achieve reliability. In the traditional methods, a
+great deal of time and effort is spent to prevent such errors from occurring in
+the first place. This involves considerable amount of effort and resources to
+improve quality. Unfortunately, it has been repeatedly validated that software
+can never be without defects. The reactive methodology takes this as a fact and
+designs around detecting and handling errors when they occur. This new
+methodology for implementing embedded systems will assure low cost.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h2>Traditional Prescriptive Reliability<span style='color:lime'><o:p></o:p></span></h2>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'>Traditionally we have been trained to achieve
+reliability by doing a careful design. The prescribed method is to use a
+modular design while developing our embedded systems. Testing and designing smaller,
+simpler parts build big complex systems. Use of standards, especially in
+specific market segments, such as the Motor Industry Software Reliability
+Association (MISRA) intended for embedded automotive applications has shown to
+improve reliability by increasing the overall quality of the product. Another
+time-honored method to achieve reliability is by doing design reviews and code
+reviews at each step of the development cycle.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'>One of the major problems in using the traditional
+methods to achieve reliability is the high cost associated with them<span
+style='color:lime'>. </span>NASA’s space shuttle software is probably the best
+code ever written, with an average error rate of about one per 400,000 lines.
+The average cost of developing software with such high reliability is around
+$1,000 per line. Typical commercial shrink-wrapped software, with an average
+bug count of around 1 bug per 1000 lines of code, costs somewhere between $10
+to $100 per line of code </p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'>Trying to achieve reliability also consumes a huge
+amount of another significant resource: time.<span style="mso-spacerun: yes"> 
+</span>Software companies face a tough choice of deciding between highly
+reliable software that is shipped late and unproven, lower reliability software
+that is shipped on schedule. This time to market in embedded systems,
+especially in consumer electronics tends to directly affect the bottom line of
+various companies. </p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='color:#993366'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoCommentText style='text-align:justify;text-indent:0in;mso-text-indent-alt:
+0in;mso-list:none;mso-list-ins:Unknown 19000000T0000'><span style='font-size:
+12.0pt'>Even though it is possible to write great code, but despite paying
+gigantic sums, perfection is still elusive. Outside of academia, software
+cannot be “proven” correct. Indeed, even after writing the best code, by
+employing the best development teams and using formal mechanisms to achieve
+reliability, perilous failures have been seen. The failures of Mars Pathfinder,<span
+style='color:black'> Patriot Missile Defense Failure at Dhahran, Saudi Arabia
+and the Therac</span>-25 incident<span style='color:black'> give an expressive
+illustration of the fact.</span><span style="mso-spacerun: yes">  </span>[<a
+href="#REF_1">1</a>][<a href="#REF_2">2</a>]<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='color:#333333'>The increasing complexity
+of embedded systems has led to a corresponding increase in the dependence on 3<sup>rd</sup>
+party software. Most of the times this software is distributed in pre-compiled
+format with limited access to the source code. This means some of the not so
+obvious bugs in the 3<sup>rd</sup> party software could cause reliability
+concerns. Since most of the time access to the source code is restricted,
+achieving </span>reliability by conventional methods is not likely in this
+case. </p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'>Note: 3<sup>rd</sup> party software in general is no
+more reliable than homegrown software and may even be less so due to poorly
+understood interfaces and inner mechanisms, which are often hidden from the
+purchaser. Obviously 3<sup>rd</sup> party software is also developed under the
+same development time constraints as home grown software and even more
+stringent cost constraints.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b style='mso-bidi-font-weight:normal'>What else can
+we do?<span style='color:fuchsia'><o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><b style='mso-bidi-font-weight:normal'><span
+style='color:fuchsia'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'>Achieving reliability need not be costly or time
+consuming; indeed there are various ways in which reliability can be increased
+by using reactive methods. By reactive methods, I mean recovery or corrective
+methods, which are used after the system has performed an unreliable behavior.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'>One of the most common examples of a reactive method
+already in use is the watchdog. A watchdog timer is a combination of hardware
+and software that is used to prevent system hangs (often by resetting the
+processor if any occurs). Generally, watchdog timer is based on a down counter,
+which starts from a given value and resets the system when it reaches zero. The
+embedded software is responsible for periodically restarting (kicking) the
+watchdog. If the counter ever reaches zero it is assumed that the software is
+malfunctioning and the system is reset.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>While using the watchdog, we should make sure that the
+following conditions are met:</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-align:justify;text-indent:-.25in;
+mso-list:l6 level1 lfo1;tab-stops:list .5in;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportLists]><span style='font-family:Wingdings'>Ø<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Watchdog
+timer interval should be carefully so chosen that the longest possible
+execution path between watchdogs updates will be less than one watchdog-timer
+interval.</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-align:justify;text-indent:-.25in;
+mso-list:l6 level1 lfo1;tab-stops:list .5in;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportLists]><span style='font-family:Wingdings'>Ø<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>The
+kicking of the watchdog must depend on the correct sequencing of critical
+software in the system</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>The first condition can be met by having the path through
+the code between watchdog updates are well defined and deterministic enough to
+guarantee an execution time less than one watchdog update period. To meet the
+second condition, in a system without an operating system, we can kick the
+watchdog at the end of each execution of the main loop. In a multitasking operating
+system, we can have a separate task to periodically kick the watchdog timer.
+The priority at which this task runs needs to be fine-tuned so that we run at a
+priority lower than the priority of all other tasks which we need to protect
+and also consider the worst case scenario, for the time delay this task gets a
+chance to run. We also need to consider the worst-case scenario for the time
+delay before this task gets a chance to run</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>For the sake of clarity, let’s take an example where we
+have a preemptive OS<b style='mso-bidi-font-weight:normal'>,</b> running the
+following tasks (as shown in Figure 1). The priority of each task can range
+from 0-255 with 0 being the highest priority.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<table border=1 cellspacing=0 cellpadding=0 style='margin-left:117.9pt;
+ border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
+ mso-padding-alt:0in 5.4pt 0in 5.4pt'>
+ <tr>
+  <td width=144 valign=top style='width:1.5in;border:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+  text-autospace:none'><b style='mso-bidi-font-weight:normal'>Task Name<o:p></o:p></b></p>
+  </td>
+  <td width=144 valign=top style='width:1.5in;border:solid windowtext .5pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+  text-autospace:none'><b style='mso-bidi-font-weight:normal'>Task Priority<o:p></o:p></b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:1.5in;border:solid windowtext .5pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify'>tExcTask</p>
+  </td>
+  <td width=144 valign=top style='width:1.5in;border-top:none;border-left:none;
+  border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify'>0</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:1.5in;border:solid windowtext .5pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify'>tShell<span
+  style="mso-spacerun: yes">      </span></p>
+  </td>
+  <td width=144 valign=top style='width:1.5in;border-top:none;border-left:none;
+  border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify'>1</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:1.5in;border:solid windowtext .5pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify'>tRlogind<span
+  style="mso-spacerun: yes">    </span></p>
+  </td>
+  <td width=144 valign=top style='width:1.5in;border-top:none;border-left:none;
+  border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify'>5</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:1.5in;border:solid windowtext .5pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify'>timerTask<span
+  style="mso-spacerun: yes">           </span></p>
+  </td>
+  <td width=144 valign=top style='width:1.5in;border-top:none;border-left:none;
+  border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify'>10</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:1.5in;border:solid windowtext .5pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify'>tNetTask<span
+  style="mso-spacerun: yes">       </span></p>
+  </td>
+  <td width=144 valign=top style='width:1.5in;border-top:none;border-left:none;
+  border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify'>50</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:1.5in;border:solid windowtext .5pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify'>tHttpdTask</p>
+  </td>
+  <td width=144 valign=top style='width:1.5in;border-top:none;border-left:none;
+  border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify'>150</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:1.5in;border:solid windowtext .5pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify'>tSnmpdTask<span
+  style="mso-spacerun: yes">         </span></p>
+  </td>
+  <td width=144 valign=top style='width:1.5in;border-top:none;border-left:none;
+  border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify'>150</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:1.5in;border:solid windowtext .5pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify'>tLoggerTask</p>
+  </td>
+  <td width=144 valign=top style='width:1.5in;border-top:none;border-left:none;
+  border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='text-align:justify'>250</p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal align=center style='text-align:center;mso-layout-grid-align:
+none;text-autospace:none'><b style='mso-bidi-font-weight:normal'><i
+style='mso-bidi-font-style:normal'>Figure 1<o:p></o:p></i></b></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>If we can predict the maximum time each of the tasks takes
+before giving up control, we can have the watchdogTask run at priority
+255.<span style="mso-spacerun: yes">  </span>Since here we are executing
+watchdogTask as the lowest priority task, if the watchdogTask does not get a
+chance to run within the watchdog period the watchdog will not be kicked and as
+a result the system will be reset. </p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>In real life it is extremely difficult if not impossible
+to predict the maximum time taken by an entire task. Assuming that the code for
+tHttpdTask was obtained from a third party in binary format. According to the
+specs provided, the average time for tHttpdTask to serve a web page is low,
+with unpredictable worst times. That being the case, we will not be able to
+come up with reasonable values for the watchdog timer period.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>One of the simplest things we could do here is to have the
+watchdog task run at priority 100. Assuming all the tasks with a priority of
+below 100 to be critical, it will make sure that all the critical tasks behave
+well. In the event of a critical task behaving inconsistently, the watchdog
+timer task will never get to run, thereby never kicking the timer. This will
+eventually cause the system to reset.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>If used properly a watchdog timer can successfully detect
+all tasks frozen or hung because of deadlock within tasks and/or infinite
+looping of a task. Watchdog can also detect faults in scheduling algorithm, if
+some tasks are not getting scheduled because higher priority tasks are hogging
+the CPU <s><o:p></o:p></s></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>Even though the watchdog seems to be simple in concept, it
+is often difficult to implement reliably. It may not detect some task crashes
+or system corruption. Taking the above example if tRlogind task crashed without
+having significant side effects, the watchdog may never be able to find out the
+cause of the crash. In many cases, we could have critical tasks running as low
+priority threads. Using a simple watchdog in these cases, we will never be able
+to detect these tasks crash or hang, especially in the presence of
+non-deterministic tasks.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><b style='mso-bidi-font-weight:normal'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></b></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><b style='mso-bidi-font-weight:normal'>Policing the
+individual tasks [introducing Task Monitor]<o:p></o:p></b></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>Because of the reasons mentioned above, it seems that it
+would be better if we could have the task monitor each task and verify the sanity
+of the task before kicking the dog.<span style="mso-spacerun: yes">  </span>The
+simple way to do it is for the task to update a monitor table, which has
+entries for each task that needs to be monitored. A monitor utility could be
+run periodically to verify if all the tasks have updated their states properly.
+In a multitasking operating system, all the tasks can be divided into 2
+categories, some that execute periodically and the rest, that wait for an event
+to happen. </p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>Monitoring a periodic task is easy because its frequency
+is deterministic, each of the periodic tasks could set alive flag whenever they
+are successfully run. The monitor task could check and reset the flag if the
+task had set its flag to alive. If any task has not set their flag as alive,
+within, the specified period, the monitor task does not kick the watchdog,
+causing the system to reset.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>The other types of tasks wait for an event to happen and
+can potentially wait for unpredictable periods of time without executing. For
+these tasks, by using additional flags we can have the monitor utility that
+makes sure that the tasks complete their execution within a specified time
+after an event happens. The monitor ignores the task if it is waiting for an
+event.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>The following example lists one possible implementation.
+In this implementation periodic functions are also treated as event based
+functions waiting for a timer event. A <i style='mso-bidi-font-style:normal'>monitorTable</i>
+stores the state of the tasks, the possible values for which are</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-align:justify;text-indent:-.25in;
+mso-list:l13 level1 lfo6;tab-stops:list .5in;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportLists]><span style='font-family:Wingdings'>Ø<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><i
+style='mso-bidi-font-style:normal'>taskRunning</i> – When the task is running
+and has not yet completed one loop in this period</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-align:justify;text-indent:-.25in;
+mso-list:l13 level1 lfo6;tab-stops:list .5in;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportLists]><span style='font-family:Wingdings'>Ø<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><i
+style='mso-bidi-font-style:normal'>taskEventWait</i> – The task is waiting on
+an event, which is yet to occur</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-align:justify;text-indent:-.25in;
+mso-list:l13 level1 lfo6;tab-stops:list .5in;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportLists]><span style='font-family:Wingdings'>Ø<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><i
+style='mso-bidi-font-style:normal'>taskEventOccur</i> – The event on which the
+task was waiting for has occurred</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoCommentText style='text-align:justify'><!--[if supportFields]><span
+style='font-size:12.0pt'><span style='mso-element:field-begin'></span>PAGE \#
+&quot;'Page: '#'<br>
+'&quot;<span class=MsoCommentReference><span style='mso-ansi-font-size:12.0pt;
+mso-bidi-font-size:12.0pt'><span style="mso-spacerun: yes">  </span></span></span><span
+style='mso-element:field-separator'></span></span><![endif]--><span
+style='font-size:12.0pt'>Page: 1<br>
+</span><!--[if supportFields]><span style='font-size:12.0pt'><span
+style='mso-element:field-end'></span></span><![endif]--><span style='font-size:
+12.0pt'>During initialization, an entry in the <i style='mso-bidi-font-style:
+normal'>monitorTable</i> is created for each task that needs to be monitored.
+The task state is initialized to <i style='mso-bidi-font-style:normal'>taskEventWait</i>.
+The tasks, upon receiving an event, it should set their state to <i
+style='mso-bidi-font-style:normal'>taskEventOccur</i>. After the task completes
+its execution loop and is waiting for the next event, it should set the state
+to <i style='mso-bidi-font-style:normal'>taskEventWait</i></span>.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>The monitor task, which is invoked periodically, changes
+the state of each task, which is in state <i style='mso-bidi-font-style:normal'>taskEventWait</i>
+to <i style='mso-bidi-font-style:normal'>taskRunning</i>. If in the next
+invocation of the monitor task, if it finds a task entry, which is still in <i
+style='mso-bidi-font-style:normal'>taskRunning</i> state, it can conclude that
+the task has stopped running and then it should not kick the watchdog. This
+would eventually result in the watchdog resetting the whole system and starting
+all over again.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>This monitor task should be run at either a high priority
+or at timer ISR context to make sure that the watchdog is kicked in time, if
+all the tasks are verified to be in good condition.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><b style='mso-bidi-font-weight:normal'><span
+style='color:blue'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><b style='mso-bidi-font-weight:normal'>Resetting the
+System – Getting up after the fall<o:p></o:p></b></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'>Resetting a system seems to be one of the crudest
+methods of implementing reliability and yet it is the primary method employed
+by watchdogs. Although the system is recovered from an unknown state still
+there are tasks the system was doing before it went into this stage. In some of
+these cases some other perfectly good task could be performing a vital
+function, which also gets interrupted by this reset.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'>One of the critical issues we have to deal with when
+we are trying to reboot the system once a problem is detected is that we could
+end up with the system getting stuck in an infinite reset – boot loops. The
+error condition, which caused the reset, in the first place could potentially
+still exist even after the reset, and could possibly cause another reset as
+soon as the system finishes initialization. Making sure that after a
+predetermined number of reboots the system goes to a known safe state and stop
+resetting the system can easily prevent this. This is very easy to implement,
+as a watchdog reset will almost always cause a status bit to be set. By
+examining this bit and updating a counter at boot time, we can determine if we
+have crossed the threshold of rebooting the system (say a maximum of 1 reset
+per day) and go to safe mode<span style='color:fuchsia'>.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;mso-layout-grid-align:
+none;text-autospace:none'><span style='color:fuchsia'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>Another issue we need to address is that the system should
+recover quickly after reset. A reset time shorter than the power on reset time
+can be achieved by skipping some of the device self-tests in case of a watchdog
+reset. The self-tests would only be executed if too many resets occurred and
+the safe-mode was entered. This gives the flexibility of quick recovering from
+run-time application errors, but also the fall back of detecting hardware
+errors if too many resets occur</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>Even after taking into considerations all the points
+mentioned above, resetting the system still might not be a very good idea. The
+system could have a perfectly valid task modifying some critical region could
+cause a system corruption when interrupted by a reset. Some of the other
+actions we could take if the watchdog bites is to sound an alarm, download and
+load an alternate image or wait for user intervention.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>Another strategy we could follow is to reset only the
+individual task, which has failed. This could be achieved by some simple
+modifications made in the taskMonitor routine discussed above. We could further
+improve the implementation by giving up in case we have reset the task a
+predetermined number of times and it has still crashed. At this point of time,
+depending on the criticality of the task and depending on the nature of the
+system, we could reset the system, ignore the task or raise an alarm.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>To implement this along with our above example, the
+monitorTable should now be expanded to include at least the following values
+for each task:</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-align:justify;text-indent:
+-.25in;mso-list:l1 level1 lfo9;tab-stops:list .75in;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportLists]><span style='font-family:Symbol'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>resetFoo - Reset function for each task.</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-align:justify;text-indent:
+-.25in;mso-list:l1 level1 lfo9;tab-stops:list .75in;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportLists]><span style='font-family:Symbol'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>maxResetNo - Number of max resets allowed for each
+task.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><b style='mso-bidi-font-weight:normal'>The Users
+Perspective</b></p>
+
+<p style='text-align:justify'><span style='color:windowtext'>If we use all the
+techniques mentioned above we can in many cases hide the recovery mechanism
+from the end user. In terms of the user experience, the recovery may be
+instantaneous, and the user may not even be even aware that a reset occurred.
+The recovery time we have is the length of the watchdog timeout plus the time
+it takes the system to reset and perform its initialization. How well the
+device recovers depends on how much persistent data the device requires, and
+whether that data is stored regularly and read after the system resets. <o:p></o:p></span></p>
+
+<p style='text-align:justify'><span style='color:windowtext'>Looking from the
+outside, the system can behave like a pseudo-reliable system, which never seems
+to be in a bad state. As far as a user is concerned, if the user does not see it
+then the problem does not affect him and therefore to him, does not exist.<o:p></o:p></span></p>
+
+<p style='text-align:justify'><b style='mso-bidi-font-weight:normal'><span
+style='color:windowtext'>Examples from the real world<o:p></o:p></span></b></p>
+
+<p style='text-align:justify'><span style='color:windowtext'>The reactive
+methods described above could have a wide variety of applications. They can be
+used to make critical systems more reliable without significantly increasing
+the cost of the system. On the other end of the horizon they can also be used
+in low cost consumer electronic devices where the pressure for time to market
+and lower per unit cost is demanded. In these quick development cycles, speedy design
+and low time to test results in oddities, which sometimes can be really
+annoying to users.<o:p></o:p></span></p>
+
+<p style='text-align:justify'>NASA has historically used watchdog timers for
+Spaceflight, in the Space Shuttle's main engine controller. The controllers are
+redundant but were not actively synchronize, to quote from <b>Computers in
+Spaceflight: The NASA Experience</b><span style='mso-bidi-font-weight:bold'> </span>[<a
+href="#REF_3">3</a>]<b>, “</b><i style='mso-bidi-font-style:normal'>Marshall
+Space Flight Center studied active synchronization, but the additional hardware
+and software overhead seemed too expensive.</i>” The controller had a major
+cycle of 20 microseconds, which was divided into 4 minor cycles of 5
+microseconds each. Two watchdog timers with a timeout period of 18 ms were
+used, which had to be kicked by the software. In case of failure, the engine
+would be “uncontrollable,” for less than one major cycle before the redundant
+computer takes over.<span style='color:windowtext'><o:p></o:p></span></p>
+
+<p style='text-align:justify'><span style='color:windowtext'>In one company I
+know, it was making a network access device which developed a “strange” problem
+weeks before it was to be released. While testing the final product it was
+found that the system would freeze after around 3 days of pumping data through
+it. Debugging the systems seemed to indicate a memory leak, with no idea as to
+the source of the leak. The company then decided to implement a reactive
+methodology to deal with this issue. It ran the watchdog timer as a low
+priority thread with a timeout of around 200 ms. The system (without the power
+on test) would take around 10 to 15 seconds to completely initialize and start
+all over again. Since the device was used primarily for browsing, from the
+users perspective when the device hangs and reset itself the user’s browser
+would time out. By the time the user did a refresh the system would be back
+online and would serve the user with the web page. Thus the typical user
+working on windows OS would never notice the difference.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-align:justify;text-indent:
+-.25in;mso-pagination:none;tab-stops:.25in;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-align:justify;text-indent:
+-.25in;mso-pagination:none;tab-stops:.25in;mso-layout-grid-align:none;
+text-autospace:none'><b style='mso-bidi-font-weight:normal'>What else can we
+do?<o:p></o:p></b></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>These reactive methods, which I have described above, are
+only a few of the techniques that can be used to achieve reliability; many
+others can exist and work as well. These methods are simple methods, which can
+be implemented at low costs, since cost has always been (and more so now) one
+of the driving forces, which decides the fate of a product.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'><b style='mso-bidi-font-weight:normal'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></b></p>
+
+<p class=MsoNormal style='text-align:justify;mso-layout-grid-align:none;
+text-autospace:none'>Monitor the Monitor Task: To further strengthen the
+reliability of the system we could implement another monitor task
+(taskMonitorController) which would watch over the monitor task and restart
+this task monitor if it messes up. To make sure that this taskMonotorController
+is reliable this task should be responsible for only monitoring the taskMonitor
+task.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;tab-stops:
+1.0in;mso-layout-grid-align:none;text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;tab-stops:
+1.0in;mso-layout-grid-align:none;text-autospace:none'>In our quest for higher
+reliability and to minimize the impact on the system, we could periodically
+preserve states at system level or task level. On system or task reset we could
+revert back to the known good state, thereby limiting the impact on the system.
+</p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;tab-stops:
+1.0in;mso-layout-grid-align:none;text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;tab-stops:
+1.0in;mso-layout-grid-align:none;text-autospace:none'>Although these techniques
+can give a feeling of reliability to the user, they do not guarantee the
+correct operation of the device. Hardware has long used Error Detection and
+Correction techniques like parity checking and complex retry mechanisms to give
+the feel of reliability over an unreliable medium. The author stresses the fact
+that these techniques cannot deal with a bad design or be responsible for
+detecting all errors in a system. Nevertheless, they could be very effective in
+hiding the last bug, which still lurks in our system, from the user.</p>
+
+<p class=MsoNormal style='text-align:justify;mso-pagination:none;tab-stops:
+1.0in;mso-layout-grid-align:none;text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p style='text-align:justify'><b><i style='mso-bidi-font-style:normal'>Vivek
+Kumar </i></b><i style='mso-bidi-font-style:normal'><span style='mso-bidi-font-weight:
+bold'>is an embedded systems consultant and<b> </b></span>has been writing and
+developing embedded software for over 8 years. Vivek is based in <b>San</b> <b>Jose</b>,
+CA and specializes in board bring-up, developing device drivers and optimizing
+codes for various systems. He welcomes feedback and can be reached at
+vivek@employees.org<o:p></o:p></i></p>
+
+<p class=MsoNormal style='mso-pagination:none;tab-stops:1.0in;mso-layout-grid-align:
+none;text-autospace:none'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'><b>References<o:p></o:p></b></p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'><b><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></b></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-pagination:
+none;mso-layout-grid-align:none;text-autospace:none'>[<a name="REF_1">1</a>]
+Patriot Missile Defense: <span style='mso-bidi-font-weight:bold'>Software</span>
+<span style='mso-bidi-font-weight:bold'>Problem</span> <span style='mso-bidi-font-weight:
+bold'>Led</span> to <span style='mso-bidi-font-weight:bold'>System Failure</span>
+at <span style='mso-bidi-font-weight:bold'>Dhahran</span>, <span
+style='mso-bidi-font-weight:bold'>Saudi</span> <span style='mso-bidi-font-weight:
+bold'>Arabia - </span><a href="http://www.fas.org/spp/starwars/gao/im92026.htm">http://www.fas.org/spp/starwars/gao/im92026.htm</a></p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'>[<a name="REF_2">2</a>] What really happened on Mars. - <a
+href="http://research.microsoft.com/~mbj/Mars_Pathfinder">http://research.microsoft.com/~mbj/Mars_Pathfinder</a></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-pagination:
+none;mso-layout-grid-align:none;text-autospace:none'>[<a name="REF_3">3</a>] <span
+style='mso-bidi-font-weight:bold'>Computers in Spaceflight: The NASA Experience</span>
+<a
+href="file:///D:/WINNT/Profiles/vkumar/Local%20Settings/Temporary%20Internet%20Files/OLK169/www.hq.nasa.gov/office/pao/History/computers/Ch4-7.html">www.hq.nasa.gov/office/pao/History/computers/Ch4-7.html</a>
+</p>
+
+<p class=MsoNormal style='mso-pagination:none;mso-layout-grid-align:none;
+text-autospace:none'>[4] Niall Murphy, &quot;<a
+href="http://www.embedded.com/2000/0011/0011feat4.htm">Watchdog Timers</a>,&quot;
+<i>Embedded Systems Programming,</i> Nov 2000.</p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-pagination:
+none;mso-layout-grid-align:none;text-autospace:none'>[5] Niall Murphy and
+Michael Barr, “<span style='color:blue'>Introduction to Watchdog Timers</span>,”
+<i>Embedded Systems Programming,</i> Oct 2001</p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:-.25in;mso-pagination:
+none;mso-layout-grid-align:none;text-autospace:none'>[6] Agustus P. Lowell,
+&quot;<span style='color:blue'>The Care and Feeding of Watchdogs</span>,&quot; <i
+style='mso-bidi-font-style:normal'>Embedded Systems Programming,</i> April 1992,
+</p>
+
+</div>
+
+</body>
+
+</html>

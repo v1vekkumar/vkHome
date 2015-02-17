@@ -1,0 +1,175 @@
+
+                Network Support in the Linux Kernel
+
+   linux/net/
+         
+
+     linux/include/net/protocol.h has the following 
+                        
+                              ---------------
+                             |  (*handler)   |  
+                 	      ---------------
+                             |(*err_handler) | 
+                              ---------------
+                             |    *next      | 
+                              --------------- 
+                             |   protocol    | 
+                              --------------- 
+                             |    copy:1     | 
+                              --------------- 
+                             |    *data      | 
+                              --------------- 
+                             |    *name      | 
+                              ---------------
+
+
+ internel representation of socket in linux/include/linux/net.h
+           
+    1.  struct  socket        ---------------
+                             |      type     |
+                              ---------------
+     (an enum) socket_state  |     state     |  state of the connection
+                              ---------------
+                             |     flags     |
+                              ---------------
+           struct proto_ops  |     *ops      |  
+                              ---------------
+                 void        |     *data     | protocol data
+                              ---------------
+            struct socket    |     *conn     |server/client socket connected to
+                              ---------------
+            struct socket    |    *iconn     |list of clients wait_to connect
+                              ---------------
+                             |    *next      |
+                              ---------------
+            struct wait_queue|    **wait     |  wait queue implementation on it
+                              ---------------
+                             |    *inode     |
+                              ---------------
+         struct fasync_struct| *fasync_list  |
+                              ---------------
+             struct file     |     *file     |
+                              ---------------
+                            
+   conn,iconn have different meanings for both server and client.
+
+
+       
+linux/include/linux/skbuff.h
+
+    sk_buff is one of the most important structures.  
+    1. struct sk_buff       TOOOOOOOOOOOO big....
+                             --------------------
+                            |   * next           |
+                             --------------------     
+                            |    *prev           |
+                             --------------------
+                            |     *list          |
+                             --------------------
+                            | magic_debug_cookie |
+                             --------------------
+                            |      *link3        |
+                             --------------------
+                            |      *sk           |
+                             --------------------
+		            |      when          |
+                             --------------------
+			    |      stamp         |
+                             --------------------
+			    |       *dev         |
+                             --------------------
+			    |       |   *th      |  struct tcphdr
+                            |       |------------ 
+                            | union |    *eth    |  struct ethhdr
+                            |       |------------
+                            |       |    *iph    |  struct iphhdr
+                            |       |------------
+                            |  h    |    *uh     |  struct udphdr
+                            |       |------------
+			    |       |   *raw     |  unsigned char
+	                    |       |------------
+                            |       |    *filp   |  void
+                             -------------------- 
+                            |union  |  *raw      | 
+                            |       |------------
+                            | mac   |  *ethernet | struct ethhdr
+                             --------------------
+                            |    *ip_hdr         |
+                             --------------------
+      length of actual data |     len            |
+                             --------------------
+        checksum            |       csum         |
+                             --------------------
+         source ip          |       saddr        |
+                             --------------------
+          target ip         |       daddr        |
+                             --------------------
+        next hop ip         |       raddr        |
+                             --------------------
+                            |       seq          |
+                             --------------------
+                            |      end_seq       |
+                             --------------------
+                            |      ack_seq       |
+                             --------------------
+                            |   proto_priv[16]   |
+                             --------------------
+                            |       acked        |
+                             --------------------
+                            |       used         |
+                             --------------------
+                            |       free         |
+                             --------------------
+                            |       arp          |
+                             --------------------
+                            |       tries        |  unsigned char
+                             --------------------
+                            |        lock        |
+                             --------------------
+                            |    localroute      |
+                             --------------------
+                            |     pkt_type       |
+                             --------------------
+                            |     pkt_bridged    |
+                             --------------------
+    driver supplied IP csum |      ip_summed     |
+                             --------------------
+                    ------ some  #define's -----------
+                             --------------------
+                            |    users           |
+                             --------------------
+     .......from driver     |     protocol       |
+                             --------------------
+           buffer size      |    truesize        |
+                             --------------------
+                            |     count          |
+                             --------------------
+  link to actual data skb   |     *data_skb      |    struct sk_buff 
+                             --------------------
+         head of buffer     |    *head           |
+                             --------------------
+                            |      *data         |
+                             --------------------
+                            |      *tail         |
+                             --------------------
+            .....of buffer  |      *end          |
+                             --------------------
+       destruct function    |   (*destructor)    |void  (*..)(struct sk_buff *)
+                             --------------------
+           redirect port    |   redirport        |
+                             --------------------
+                        
+
+
+
+
+
+
+
+
+
+
+
+
+
+

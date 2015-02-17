@@ -1,0 +1,915 @@
+              VHLK-II on Filesystem Support in Kernel. 
+
+    code in  /usr/src/linux/fs/
+   linux supports a variety of filesystems.this is made possible by an
+implementation-independent filesystem-interface called the VFS or 
+Virtual Filesystem Switch.This also makes adding another filesystem to the
+kernel very easy.(see fig6.1 in page 149 of LKI)
+    filesystems.c gives the sys_setup() to  initialize different filesystems 
+supported by the kernel.header files containing info,declarations specific 
+to any filesystem is are also '#include'ed and init_<that_filesystem> 
+functions are called along with binfmt_setup() and device_setup().
+ 
+1. /usr/src/linux/include/linux/fs.h:  defines the following
+        #define NR_SUPER 64
+        #define NR_OPEN 256
+        #define BLOCK_SIZE 1024
+        #define BLOCK_SIZE_BITS 10
+many other macros to check different flage and struct-members are also 
+defined here.
+      so are 
+        struct inode(characteristics),
+        struct iattr(?????????),
+        struct super_block(about superblock of the filesystem),
+        struct file_operations,
+        struct inode_operations,
+        struct super_operations...........
+     struct file_system_type makes a singlar linked list of file_system_type
+storing the char *name,a function to read_super() and an int requires_dev.
+
+ and many other such structures,macros and functions.............
+
+
+VFS layer contains many  implementation-independent functions and syscalls.
+  all these are in /usr/src/linux/fs directory 
+        as .c files-subdirs for  specific fs type.(this interface 
+implementation is very  interesting.) 
+  struct wait_queue is a member of inode super_block struct... why?
+it is given to make add_on_wait() possible.It needs the same structure 
+on a wait queue and the corresponding member of super_block struct helps to be on the wait queue.
+       
+                            1.filesystems.c
+   
+            contains a "table of configured filesystems"(Linus in comments)
+and only implementation here is of setup() syscall.
+First it calls device_setup() and then binfmt_setup(). then...
+It calls all 
+   '#CONFIG_'ed filesystems'  init_<fs>_fs() from different files.
+mount_root() is called next and return's.....
+This is called from init.c ,suppose.
+        
+       
+
+                           
+
+                            2.file_table.c
+
+                     comments say as below
+* first_file points to a doubly linked list of all file structures in
+*           the system.
+* nr_files   holds the length of this list.
+
+   there are some functions also given to add_to and remove_from this list
+and also for maintaining this list.
+
+  
+ 
+ ++static int grow_files(void)
+    ::allocates a new memory page for file structures.
+    fill up this page by inserting new structures into the global list.
+
+
+
+ ++struct file * get_empty_filp(void)
+     ::if the user is not superuser,then reduce max_files to reserve few files 
+     for the superuser.
+     If grow_files() failed to get page for it,return
+     go through the list of struct file's and get a file with file->f_count=0
+    check about nr_files is also made during the whole process.  
+
+
+                   
+
+                             3.super.c
+  
+ ++struct file_system_type *get_fs_type(const char *name)
+    ::traverses through the linked list of  file_system_type comparing with 
+           the name entry and retrns the matching entry.
+  
+ 
+ 
+
+
+ ++void __wait_on_super(struct super_block * sb)
+    ::struct wait_queue wait is initialized with current task structure.
+      adds sb->s_wait (it is wait queue in itself) to the above wait queue.
+      makes current->state equal to TASK_UNINTERRUPTIBLE.then schedule()'s
+      and repeats the loop untill sb->s_lock is zero.
+      when sb_s_lock is zero, it remove_wait_queue()'s and restores the 
+      runnins status of the current task.
+      It works as follows:
+         after putting the super block on wait queue,it gives chance for 
+         other processes waiting on the superblock and when there is no such p
+         process,it removes the super block from wait queue. 
+     remember here that schedule() doesnot return but gives chance for the next     waiting proces.This process gets a chance later.... 
+    
+????? if sb->s_lock is 1,schedule() is called and when will it become not-1
+       so that schedule() is not called again and again.
+ANS: The scheduler will ask the process which locked the superblock to run 
+     and relinquish the control of superblock,and the process calling
+     wait_on_super will wait untill this is done.
+
+
+
+
+
+ ++static struct super_block * get_super(kdev_t dev)
+    ::list of super blocks in t system are stored in an array 
+                           struct super_block super_blocks[NR_SUPER]
+      a search through the list is made(an inteliigent search!)
+      checks if(s->s_dev == dev) ,and if true wait_on_super() and then
+      again a check as above reason is given below....
+      and if false it continues the search.
+      wait_on_super() is used here to make sure that nobody is using 
+      this super block.This wait is required because using the array of 
+      super blocks,a search is made on  the memory areas used by other 
+      processes and it is possible that some other processs is accessing 
+      super block .... etc.. ITS LITTLE TRICKY...
+
+????? I donot understand how wait_on_super() is used in get_super().... 
+ANS:"Simple. If the super was locked, wait_on_super() puts us to sleep.
+     When we awake, we check the device again because it may have changed
+     while we were sleeping."
+      answered by  <Andrew E. Mileski   mailto:aem@netcom.ca>
+ 
+
+
+
+ ++void put_super(kdev_t dev)
+     ::three important checks first...
+       If the dev is ROOT_DEV it returns and then
+       get_super(dev) and if the super_block related to the dev is NULL,
+                       just returns..
+       sb->s_covered is the mount point,it returns if this(struct inode *) is 
+              not NULL.
+????? Is s_covered mount point for other fses in its tree or it's mount point
+ANS: It must be for other fses because in that case,you cannot put_super()...
+       Otherwise sb->s_op->put_super() is called  is sb->s_op and 
+           sb->s_op->put_super() exists...  
+  
+
+
+
+ ++static struct super_block * read_super(kdev_t dev,const char *name,
+                     int flags,void *data, int silent)
+
+    ::this initializes super block(SB) rather than reading it...
+      (actually read_super means read SB into memory Or read into in-core SB)
+      name is the name of filesystem(fs)..
+      it fails if :-
+         dev == NULL
+      checks if there was a change in disk by check_disk_change(dev) ...
+      then s=get_super(dev) is returned.(in this case,s is already in-memory)
+      an error if get_fs_type returned NULL(ie if there is no fs as given by 
+                                     the argument)
+      it then checks for a free slot in the array of SB's(no. bound by 
+             NR_SUPER) by checking if s->s_dev is NULL.
+      initialize with required entries in the free slot
+       but there is still a chance of error ie  operations on SB of the 
+       particular fs not-supporting read_super.
+      
+   OTHER FUNCTIONS IN THIS ARE FOR MOUNTING & UNMOUNTING
+                                           (thatone later)
+
+
+                          4.inode.c 
+
+     uses an inode hash table... 
+  ////////////////////      go back and read hash data structure...
+      there are  some functions to set up and manage the hash table.
+      there are functions to losk and wait etc.
+ 
+ 
+
+ ++static inline void read_inode(struct inode * inode)
+    ::calls inode->i_sb->s_op->read_inode(inode) if inode->i_sb,
+              inode->i_sb->s_op etc.. exists.(check forexistence of ops)
+      this call is to the member of s_op structure..and that s_op is a
+      member of i_sb both of which are fs-implementation-depenant.
+      so here control passes from the VFS layer to the read_inode() 
+      defined in the fs-dependant header files.
+
+ 
+
+
+ ++static void write_inode(struct inode * inode)
+    ::return if the inode is not dirty( that is if inode->i_dirt ==0 )
+      then wait_on_inode() for all process to giveup this inode.
+      next is the usual check for existence of ops in the fs implementation  
+      locks the inode by making inode->i_lock = 1
+      gives control to fs-implementation ie ....->s_op->write_inode()
+                 as in the above case.
+     and unlock_inode(inode) 
+?????why is inode->i_lock made 1 instead of calling lock_inode.
+     is it for not allowing raceconditions or something.
+
+
+
+
+ ++void sync_inodes(kdev_t dev)
+     ::goes through the inode list. wait_on_inode()s for each legal inodes
+       and write_inode()s them if it is dirty or inode->i_dirt != 0.
+       legal means dev != NULL and inode->i_dev == dev.
+
+
+
+
+ ++struct inode *__iget(struct super_block * sb, int nr, int crossmntp)
+     ::this is called by 
+           extern inline struct inode * iget(struct super_block * sb,int nr)
+         which is defined in linux/include/linux/fs.h
+     iget() is used almost always and it only
+           "return __iget(sb, nr, 1);".
+           
+
+
+?????why is there such a roundabout way? iget() calling __iget() etc...
+          
+                        
+
+                              5.namei.c
+
+NOTE:The functions here are the best exapmles of good VFS design.
+    most of the functions check if a corresponding operation is available in
+    the filesystem and if not, returns error or otherwise,transfers control to 
+    that particular function.
+
+
+
+
+  ++static inline int get_max_filename(unsigned long address)
+      ::return with error -EFAULT for bad address if
+           -vma(virtual mem area of (task_struct) current  and address) is NULL
+           -address is less than vma->vm_start
+          OR -vma->vm_flags do not allow  read.
+      return with 0 if
+         -address is greater than vma->vm_end - address
+         -vm_next of vma is non-NULL and is vm_start is same as vma->vm_end
+              and vm_flags of vm_next is readable.
+      Otherwise return the difference between address and vma->vm_end.
+   
+ This works with a filename in a userspace because we are using virtual 
+    memory area and a struct which is vm_area_struct *
+
+   
+
+
+ ++int getname(const char * filename, char **result)
+     ::  read comments
+       * In order to reduce some races, while at the same time doing additional
+       * checking and hopefully speeding things up, we copy filenames to the
+       * kernel data space before using them..
+     calls (i = ) get_max_filename() and checks the return value and sets error
+     accordingly.if it is 0,error gets -ENAMETOOLONG.
+     next c gets return value of get_user(filename++) and if it is NULL,
+     it is an error ie no such file exists....(-ENOENT).
+     or if  __get_free_page(GFP_KERNEL) returns a NULL, no memory is avilable
+     or -ENOMEM.
+    
+
+
+
+ ++int permission(struct inode * inode,int mask)
+      ::gives control to inode->i_op->permission(inode,mask) if that exists in
+      the corresponding fs.
+      deny access if the file is immutable.
+      check and compare with current->fsuid and inode->i_uid.
+      returns 0 on success(either superuser(by fsuser()) or proper permissions)
+      -EACCES on failure to show no-access.
+
+
+
+
+ ++int get_write_access(struct inode * inode)
+      ::for_each_task(),if there is a memory assigned(p->mm is not NULL)
+      traverse through all the virtual memory areas of the task,and if the 
+      inode pointer from it(vm_area_struct) and the vm-area is VM_DENYWRITE 'd
+      return error(-ETXTBSY saying text file is busy)
+      if it succeeds these tests, increment inode->i_writecount and return 0.
+
+
+
+
+ ++void put_write_access(struct inode * inode)
+      ::decrements inode->i_writecount by one.
+//////the names of both the functions above are misnomers..no access check 
+//////      is actually made
+   
+
+
+
+ ++int lookup(struct inode * dir,const char * name, int len,
+                                           struct inode ** result)
+
+      ::this is for looking up and getting result from one part of a pathname.
+      so error if it is not a directory(????check.it should be so)
+      first check for execute  permission(dir,MAY_EXEC).
+      if length of this path is two and it is "..",
+          and if dir is root(current->fs->root),then return dir only.
+  ------->>>>>        otherwise 
+      if either dir->i_op OR dir->i_op->lookup doesnot exist,iput(dir) and 
+      return error that it is not directory (-ENOTDIR)
+      if permission() returned non-0,iput() and return that return-value.
+      ^^^^^^this check is done so late because if it is "..",it is OK.
+      if len is 0,*result is dir and returns 0
+      otherwise,return dir->i_op->lookup().   
+   
+
+
+
+
+ ++int follow_link(struct inode * dir, struct inode * inode,
+                     int flag, int mode, struct inode ** res_inode)
+
+      ::if either dir OR inode is NULL,iput() both,*res_inode=NULL and -ENOENT.
+      if either inode->i_op  OR inode->i_op->follow_link is NULL,iput(dir),
+      resultant inode is inode and return 0.
+      OR Otherwise transfer control to inode->i_op->follow_link
+
+ 
+
+
+
+  ++static int dir_namei(const char *pathname, int *namelen, const char **name,
+                            struct inode * base, struct inode **res_inode)
+      
+      ::if base is NULL,give it the value of pwd and increment its i_count.
+      if the pathname starts with a '/',iput(base) and let 
+            root(current->fs->root) be base,increment base->i_count.
+      now till pathname gets exhausted(till  end_of_string),
+           1.discard all '/'in the path
+           2.incr base->i_count
+           3.lookup() and reflect error it returned
+           4.follow_link() and return its error,if any.
+      if base->i_op Or base->i_op->lookup doesnot exist,iput(base) and return
+            not directory error.
+      updates *name,*namelen,and *res_inode to reflect in the caller.
+ ...This extracts the base directory and the name of file in it.  
+    VFS layer as illustrated in the above function looks upto a particular 
+    fs-implementation to provide lookup() and follow_link().
+
+  
+
+
+
+  ++static int _namei(const char * pathname, struct inode * base,
+                       int follow_links, struct inode ** res_inode)
+
+     ::calls dir_namei() which copies name of the file (in directory base) into
+     char *basename and length of that filename into int namelen.
+     incr base->i_count because lookup is going to use base,too,AND call lookup
+     if available, follow_link() using inode returned by previous lookup.
+     resultant inode is inode from previous function call.ao RETURN().
+ 
+     
+   
+
+  ++int namei(const char *pathname, struct inode **res_inode)
+     ::calls getname(),to copy from userland to kernel space.
+     if it worked,call _namei() and then putname().
+     as comments say,it is used by most simple commands to get the inode of a 
+     specified name.
+
+
+
+
+  ++int open_namei(const char * pathname, int flag, int mode,
+                        struct inode ** res_inode, struct inode * base)
+     
+     ::corrects mode for rwx permissions for user,group,others and also 
+     for regular file using current->fs->umask.//////may beused for readonly fs
+     dir_namei() gets the basename ,its length namelen and corresponding inode
+     if namelen is 0,ie pathname ended with a '/'
+          -if (flag&2) is not-0 (which is a write permission),
+                           return  error that it is a directory.     
+          -check permission() and error,if any.
+          -Otherwise resultant inode is the dir from dir_namei and return 0.
+     if flag&O_CREAT is ONE,
+     
+     else lookup() and handle error,if any.
+     and follow_link() to get   inode.
+     if that inode is a directory and write access was asked (flag&2 is 1).
+              return error -EISDIR.
+     check permission(inode,ACC_MODE()) 
+     if S_ISFIFO() or S_ISSOCK().....nothing to do (((((((((((???????????
+     if S_ISBLK() or S_ISCHR() and if access is to be deined to that device
+     (IS_NODEV(inode) gives 1) iput() an return -EACCEs
+                              otherwise flag &= ~O_TRUNC.    
+     return error if the fs is read-only and write permission is asked.
+     If the file is append_only and write permission is asked without append,
+     it is again an error.
+     If to be TRUNC
+     
+     Otherwise give control to inode->i_sb->dq_op->initialize().
+     return 0 after putting value in resultant inode.
+
+
+
+
+  ++int do_mknod(const char * filename, int mode, dev_t dev)
+     ::Adjust mode with fs-wide umask(current->fs->umask)
+     dir_namei() to get the base_directory in inode *dir.
+     If the length of basename(removing the directories in  the path) is NULL,
+          it is an error.
+     If the base dir is read_only,the access is denied(r/o fs error Or -EROFS).
+     Check for both write and execute permission(),error if not allowed.
+     If the fs on which the node is to reside also should give mknod(),
+              otherwise error.
+     Incr count,give control to dir->i_sb->dq_op->initialize()
+     now,give control to dir->i_op->mknod() which is embedded in down and up
+           for semaphore implementation.
+     iput(dir) and return().
+ 
+ 
+
+  
+  ++asmlinkage int sys_mknod(const char * filename, int mode, dev_t dev)
+     ::function for mknod(2) syscall............LATER.
+
+
+
+
+  ++static int do_mkdir(const char * pathname, int mode)
+     ::it does same checks as in do_mknod() except that it tranfers control to
+     Or checks with dir->i_op->mkdir() instead of ...->mknod().
+     It should be essentially same also.
+
+
+  
+
+  ++asmlinkage int sys_mkdir(const char * pathname, int mode)
+    ::function for mkdir(2) syscall............LATER.
+
+         
+
+  ++static int do_rmdir(const char * name)
+    ::dir_namei() returns basename and namelen of that name.
+    error if dir is IS_RDONLY().write and execute permission is required too.
+    subdirectory cannot be removed from an append-only directory.
+    error if the fs doesnot support rmdir(),then dq_op->initialize
+    and return dir->i_op->rmdir().
+
+
+
+  ++asmlinkage int sys_rmdir(const char * pathname)
+    ::function for rmdir(2) syscall............LATER.
+
+
+  ++static int do_unlink(const char * name)
+    ::it works and does  as  do_rmdir() except for i_op->.....()
+    and that this works on files.This is to be taken care at the layer above 
+    this where these fnctions are called.
+ 
+ 
+  ++asmlinkage int sys_unlink(const char * pathname)
+    ::function for unlink(2) syscall............LATER.
+
+  
+ 
+  ++static int do_symlink(const char * oldname, const char * newname)
+    ::it checks for permission and other error conditions as do_rmdir() or
+    do_unlink() but there is no check on APPEND_flag of basedir.
+    and control,at last is given to dir->i_op->symlink() embedded in 
+    semaphore constructs like down() and up().
+    iput(dir) and return error.
+
+
+
+  ++asmlinkage int sys_symlink(const char * oldname, const char * newname)
+    ::function for symlink(2) syscall............LATER.
+
+
+  
+  ++static int do_link(struct inode * oldinode, const char * newname)
+    ::dir_namei() on newname to get basename and namelen.
+    return error if the namelen is 0 OR dir is IS_RDONLY.
+    error if the dir->i_dev and oldinode->i_dev are not the same.
+    This is the difference between a symlink and usual link.
+    retrun error also on following
+          -no permission() for write AND exec on dir.
+          -oldinode is append_only  Or immutable file.
+          -dir->i_op OR dir->i_op->link() doesnot exist.
+    and give control to dir->i_op->link() embedded in down() and up().
+    iput(dir) and return.
+
+
+  ++asmlinkage int sys_link(const char * oldname, const char * newname)
+    ::function for link(2) syscall............LATER.
+     
+
+  ++static int do_rename(const char * oldname, const char * newname)
+    ::dir_namei() on oldname to get (struct inode *) old_dir.
+    check write AND exec permission() on old_dir.
+    error if length of oldname is
+               -0
+               -1 and it is "."
+          OR   -2 and it is ".."
+    error -if new_dir->i_dev and old_dir->i_dev are not the same.
+          -new_dir or old_dir is IS_RDONLY
+          -old_dir is append_only.(cannot remove from such dirs)
+          -old_dir->i_op and old_dir->i_op->rename() doesnot exist.
+    transfer control to old_dir->i_op->rename() in down() and up().
+    
+
+ 
+ ++asmlinkage int sys_rename(const char * oldname, const char * newname)
+    ::function for link(2) syscall............LATER.
+
+
+
+                            6.readdir.c
+
+  ...........not looking at the backward-compatibility stuff
+
+  ++asmlinkage int old_readdir(unsigned int fd, void * dirent, 
+                                                   unsigned int count)
+    
+    ::if fd is more than max limit (NR_OPEN) or current->files->fd[fd] is NULL
+    error that it is BAD file number.
+    If file->f_op or file->f_op->readdir doenot exist,error: NOT_dir.
+    verify_area() for WRITE.
+    (struct readdir_callback) buf.count is made 0 
+    and dirent member is the void *dirent that was passed.
+    now,call file->f_op->readdir() and return.
+
+  
+
+  
+ ++asmlinkage int sys_getdents(unsigned int fd, void * dirent, 
+                                                     unsigned int count)
+    ::this is for iBCS2 complainance.
+    uses another struct viz struct linux_dirent.
+    uses put_user()  
+????LATER.
+
+       
+                    
+ 
+                               7.stat.c
+  
+  ...........only those *_new_stat_* , NOT backward compatibility stuff
+  
+  ++static void cp_new_stat(struct inode * inode, struct new_stat * statbuf)
+     ::defines a new local struct new_stat tmp ,memset() to 0's.
+     and get values of all new_stat elements from inode_members.
+     if the inode is of a pipe,tmp->st_size is determined fromPIPE_SIZE(*inode)
+     new_stat structure has two elements which require block size - these
+     are   i)st_blocks  for no of blocks
+          ii)st_blksize for size of block
+     But , as per comments MSDOS fs and minix fs doesnot keep track of blocks.
+     so this function gives an algorithm to calculate these two,if not 
+     available with the inode structure.Now there is another potential problem
+     which lies in the fact that minix uses indirect blocks also.
+     The algo is as follows
+             calculate blocks,
+               as  blocks = (tmp.st_size + BLOCK_SIZE - 1) / BLOCK_SIZE
+             maths of the above is very simple...
+             say BLOCKSIZE is 1024 and st_size is 1025.it requires 2 blocks 
+             as we know,and 1025/1024 gives only 1.so add 1023 to 1025 to get
+             2048 which gives blocks as 2(correct!!).
+             if it is greater than D_B( imply direct_block, 7 for minix-fs)
+                indirect = (blocks - D_B + I_B - 1) / I_B
+                I_B is (BLOCK_SIZE / sizeof(unsigned short)).
+                this gives no of addresses that can be stored in a block and it
+                is same as the number of indirect blocks pointed to by 1 block.
+                Remember that even if blocks were greater than 7 in the 
+                previous calculation,that number will give the total number of 
+                blocks needed(indirect or direct).now,we have to calculate
+                blocks used for storing pointers.
+                Add indirect to  blocks.This means that if it is singly 
+                indirect,add 1,else two etc.
+                  if indirect is > 1,it is doubly-indirect or more,so calculate
+                           the same as above and add to blocks.
+                if indirect is still more than 1,it is triply-indirect
+                and no more levels of indirection possible,simply incr blocks  
+                Convert blocks into number terms of 512 byte-sized-blocks. 
+       If the blocks and blocksizes are stored in the inode copy,it without the
+       above calculations
+       after these do a memcpy_fromfs() from tmp to statbuf.                
+  
+
+
+ ++asmlinkage int sys_newstat(char * filename, struct new_stat * statbuf)
+      ::verify_area() for VERIFY_WRITE
+      and namei(filename,&inode) to get inode of the file name.
+      cp_new_stat(),iput() and return.
+
+similar functions are given for sys_lstat(),sys_fstat() etc.
+                       
+
+                             
+
+                          8.exec.c
+
+ 
+  ++void binfmt_setup(void)
+     ::calls init_*_binfmt() for the supported binary formats(as config options
+     init_script_binfmt() is called anyway.. it is not to be config'ed out.
+  
+ 
+ 
+  
+
+ ++int register_binfmt(struct linux_binfmt * fmt)
+     ::formats is a global linked list of (struct linux_binfmt)'s.
+     if fmt is not NULL 
+         and if fmt is the only member(no next pointer)
+           and if fmt doesnot figure anywhere in the formats list,
+     put fmt at the head of the linked list and return.
+     
+ 
+
+
+ ++int unregister_binfmt(struct linux_binfmt * fmt)
+    ::if Module-support is configed into the kernel,only then is this available
+    just remove the correspoding entry from the linked list and return.
+
+
+
+
+ ++asmlinkage int sys_uselib(const char * library)
+     ::sys_open() the library and handle error.
+     current->files gives the list of all open files in its fd[] member.
+     get the corresponding "struct file" in file and if it gives f_op->read,
+      go thruogh formats list,and try to load it by fmt->load_shlib and if
+      it fails return the error or sys_close() and return 0.
+
+
+
+THERE ARE MANY OTHER INTERESTING FUNCTIONS..
+             COME TO IT LATER ...after doing mm properly
+
+  
+      
+
+                         
+?????| Linux VFS-implementation seems very different.SysV has free-inode list
+     | entry in the super_block structure itself where as i didnot find it 
+     | linux implementation.......and many other things are missing with 
+     | a lot of additions too(eg. wait queue etc...)
+   
+===========================================================================
+                buffer handling from linux/fs/buffer.c
+
+ struct buffer_head is defined in linux/include/linux/fs.h
+ many other buffer  related definitions and functions......
+  
+  kernel keeps few buffer lists and other information for buffer management.
+  the lists are as follows
+       static struct buffer_head ** hash_table;
+       static struct buffer_head * lru_list[NR_LIST] = {NULL, };
+       static struct buffer_head * free_list[NR_SIZES] = {NULL, };
+
+       static struct buffer_head * unused_list = NULL;
+       static struct buffer_head * reuse_list = NULL;
+  and the hash function used to obtain the entry in the buffer list is 
+      #define _hashfn(dev,block) (((unsigned)(HASHDEV(dev)^block))&HASH_MASK)
+      #define hash(dev,block) hash_table[_hashfn(dev,block)]
+      and HASHDEV(dev) is usually dev, HASH_MASK is defined (NR_HASH-1)
+   so a call to hash(dev,block) gives a buffer_head and this done using a 
+   hash function as above.
+Linux uses buffercaching techniques as in other Unices.
+  from a list of buffers,to find the correct buffer really fast,such hash
+  function is used.It is done this way because otherwise finding 
+  a suitable buffer will be a real bottleneck.
+  what if there is a clash on hashing?? It is taken care by different 
+  functions as will be explained below.
+                        
+Another thing to see here,is kdev_t dev which is used in many of the functions.
+ #define MAJOR(dev)      ((dev)>>8)
+ #define MINOR(dev)      ((dev) & 0xff)
+ #define MKDEV(ma,mi)    ((ma)<<8 | (mi))
+    is what linux/include/linux/kdev_t.h says.It means that the first 8 bits
+of dev are used by MAJOR and last 8 bits by MINOR.
+
+                       1. buffer.c
+      
+  ++many hash queues and lrulists  for book-keeping.
+     
+
+  ++void __wait_on_buffer(struct buffer_head * bh)
+               works as __wait_on_super() but  waiting on buffer.
+  
+
+  ++static inline struct buffer_head * find_buffer(kdev_t dev, int block, 
+                                                        int size)
+      ::hash(dev,block) returns tmp and tmp is struct buffer_head * tmp
+      and if the blocknr stored in that buffer head(tmp->b_blocknr) is same
+      as the block in this funcion,and tmp->b_dev == dev,and the buffer
+      size(tmp->b_size) is size, then tmp is returned.
+      If this test fails now there are two possibilities
+            i)buffer is not in the cache
+           ii)buffer is in the cache but since there was a hash-clash,it is 
+                          sored somewhere else.
+      we assume that second is the case and carry-on our check with the rest 
+      of the members in  the buffer cache's linked list
+      and returns error if it fails.
+
+
+  ++struct buffer_head * get_hash_table(kdev_t dev, int block, int size)
+      ::it calls find_buffer(dev,block,size) ,increments bh->b_count and 
+      returns buffer_head* bh on success.
+      otherwise goes into infinite loop,wait_on_buffer()s etc till it succeeds
+      additional facility it gives to find_buffer() is managing the b_count.
+ 
+  
+   ++void set_blocksize(kdev_t dev, int size)
+      ::linux/include/linux/blkdev.h:extern int *blksize_size[MAX_BLKDEV]
+      MAX_BLKDEV is defined to be 64.It is used as a 2-dimensional array
+      as blksize_size[MAJOR(dev)][MINOR(dev)] 
+?????why is blksize_size a 2-dim array?why not 1-dim array with dev asindex.
+      the algorithm used is as follows:
+             return if blksize_size[MAJOR(dev)] is a NULL (pointer):
+             ....this happens when there is no device connected to MINOR(dev)
+             size is made zero if the size to be set is greater than PAGE_SIZE
+             if size is BLOCK_SIZE and entry in blksize_size[][] was 0,then
+                           it is updated and return.
+?????what are the other lines for?..........i am clueless
+
+  
+  ++struct buffer_head * getblk(kdev_t dev, int block, int size)
+      ::isize is initialized as BUFSIZE_INDEX(size)
+        get_hash_table(dev,block,size) returns a buffer head to buffer_head *bh
+        if bh is already allocated(ie if it is not NULL),it takes a short path 
+           and it is -if bh is not marked dirty make b_flushtime equal to 0
+                                and if it is uptodate,put_last_lru(bh)
+                     -mark it touched and return(bh).
+        or else...
+          refill_freelist(size) if needed (if free_list[isize] is NULL)
+          and find_buffer(dev,block,size) and repeat from get_hash_table if it
+          returned on-NULL.
+        and if it find_buffer() above returned NULL,
+                 take that from free_list[] (ie bh = freelist[isize]),
+                 remove_from_free_list(bh) and then insert_into_queues(bh) 
+                 after corresponding changes in bh elements.
+        return bh after all these...
+   
+
+  ++void set_writetime(struct buffer_head * buf, int flag)
+       ::if the buffer is dirty,calculates new time and bh->b_flushtime is
+       made equal to that time.
+       if buffer is not dirty,bh->b_flushtime is made zero.
+  
+ 
+  ++void refile_buffer(struct buffer_head * buf)
+       ::if buffer is free,buf->b_dev will have the value B_FREE and in such
+       a case an error is reported. 
+       next buffer's character is noted in (int)dispose using pre-defined 
+       BUF_LOCKED,BUF_LOCKED1,BUF_SHARED etc(in linux/include/linux/fs.h)
+       if it is BUF_CLEAN,make buf->b_lru_time same as jiffies.
+       if dispose==buf->b_list,then go back. Or else...
+       remove_from_queues(buf) ...then make buf->b_list=dispose and
+         insert_into_queues(buf)
+       if dispose is BUF_DIRTY and there are too many dirty  buffers,
+         then wakeup_bdflush().     
+  
+  
+  ++void __brelse(struct buffer_head * buf)
+       ::one of the most important functions...
+       wait_on_buffer() till all the processes gives up its control on this.
+       calls set_writetime(buf,0) which will mark time to be written,if dirty.
+       calls refile_buffer()  to put it in appropriate  list. 
+       if buf->b_count is 0,it is already free and this prints an error.
+       otherwise,reduce the count by one and return().
+ 
+...these routines are like this(_do_not *really* release_) to help sharing.
+ and another point: refile_buffer() is used to update b_list member and
+ BH_* bits of b_state are clear_bit() or set_bit()...and both are required.
+      
+  
+ ++void __bforget(struct buffer_head * buf)
+       ::   comments make it very clear....
+   * bforget() is like brelse(), except it removes the buffer
+   * from the hash-queues (so that it won't be re-used if it's
+   * shared).
+       very straight forward steps....
+       wait_on_buffer() till everyone gives up control
+       mark_buffer_clean() and clear_bit() BH_Protected of buf->b_state.
+       decrement b_count,remove_from_hash_queue(),buf->b_dev = NODEV
+       and refile_buffer() tp put in appropriate list.
+  
+ 
+ ++struct buffer_head * bread(kdev_t dev, int block, int size)
+      ::calls getblk() to get a block and return error on failure.
+      return bh if it is uptodate.
+      if not uptodate, ll_rw_block(READ, 1, &bh)
+      waits,and returns bh if it is uptodate now and if not,release and 
+      return NULL.
+ 
+ 
+ ++struct buffer_head * breada(kdev_t dev, int block, int bufsize,
+                 unsigned int pos, unsigned int filesize)
+      ::first error checking with the parameters passed.
+      returns the block(bh) promptly if buffer_uptodate().
+      else ll_rw_block(READ, 1, &bh) ???? what and where is this function.
+      now,a check is made to find if a read ahead will be usefull or not
+      by checking read_ahead[MAJOR(dev)] contents and this is maintained in
+      device-specific code.(int)blocks now will have the number of blocks to 
+      be read including read-ahead blocks.but this is limited by NBUF(=16,here)
+      an array of buffer_head's is also maintained here of NBUF entries with 
+      the name bhlist[] whose first element is already found.after that all
+      the elements of bhlist[] is updated using getblk() by using two counters
+      -one for blocks and another for bhlist. 
+      with the bhlist updated now,ll_rw_block is callled and each of bhlist[]s
+      elements are brelse()ed.
+      now,it waits on the requested block which is bhlist[0] and if it is 
+      uptodate,return it or else brelse() and return NULL.
+   .....the last check is important for pre-emption cases
+              
+
+  ++static void put_unused_buffer_head(struct buffer_head * bh)
+      ::memset()s *bh area with 0s after putting bh on wait_queue 
+                  (it is member of buffer_head struct too)
+      then bh->b_next_free is used to put bh into unused_list(to top of list
+                of unused buffers.
+      now it calls wake_up(&buffer_wait)
+      
+  ++static struct buffer_head * create_buffers(unsigned long page, 
+                               unsigned long size)
+      ::given is the page for data area and size of each buffer  
+      get_unused_buffer_head() gets a buffer head in bh and if that is not NULL
+         bh->b_data is made to point to data block and bh->b_size is size and
+         bh->b_dev is made B_FREE and bh->b_this_page is used to keep a 
+         circular list of buffers in this page. 
+     the above steps are carried out till  the page(parameter) is full of 
+     buffers of size sizeOr when get_unused_buffer_head() fails to fetch a 
+     non-NULL buffer. 
+ 
+  
+  ++static inline void free_async_buffers (struct buffer_head * bh)
+     ::buffer is async and is serviced by this only if BH_FreeOnIO is set in 
+     bh->b_state otherwise alarm the error.
+     puts this buffer on reuse_list clear_bit() on BH_FreeOnIO and go on 
+     with other buffers in this same page.
+     ..and as per comments it should be called with interrupts disabled.
+     
+
+  ++void mark_buffer_uptodate(struct buffer_head * bh, int on)
+     ::if on is zero,_clears uptodate bit of b_state
+     if not,_sets uptodate and carries on the check with other buffers in the 
+     page and if all the buffers are uptodate,then  the page is also marked 
+     uptodate.
+ 
+
+  ++void unlock_buffer(struct buffer_head * bh)
+...the two functions above are called by end_request() when i/o is complete 
+       according to the comments.
+
+  
+  ++int try_to_free_buffer(struct buffer_head * bh, struct buffer_head ** bhp,
+                       int priority)
+      ::returns 0 on many cases as below
+         i)buf is NULL
+        ii)b_count is not 0
+       iii)buf is dirty
+        iv)buf is locked
+         v)b_wait is on wait_queue
+        vi)priority  and buffer_touched(tmp) are both non-0
+      check all the above conditions for all the buffers in the page.
+      and if bh could come out successfull from the above acid test,continue 
+      for other buffers in the same page using b_this_page element of bh and 
+      the code uses characteristics of circular list for this check.
+      we are in the next section of the function-code if
+         all the buffers in the given page are OK to be freed.
+      in that case,take each of the buffers in the page,decrement nr_buffers 
+      and nr_buffers_size[BUFSIZE_INDEX(bh->b_size)],remove_from_queues() 
+      and put_unused_buffer_head().
+      then,buffer_mem is reduced by PAGE_SIZE and free_page() is called  before
+      return.
+  This is used to reduce buffer memory
+
+
+   ++static inline void age_buffer(struct buffer_head *bh)
+      ::set_bit() BH_Has_aged of bh->b_state of the buffers in the page
+      and clear_bit() BH_Has_aged() for the last buffer in the page.
+      makes corresponding change to the page also and return()s.
+  
+....and other functions to 
+                         calculate load average etc.
+                         ext2fs - specific code
+                         debugging info...
+ ....for initialization
+   ++void buffer_init(void)
+  ////////////////////later
+
+.....for bdflush support
+??????   what is bdflush?
+ANS * This is a simple kernel daemon, whose job it is to provide a dynamic
+    * response to dirty buffers.  Once this process is activated, we write back
+    * a limited number of buffers to the disks and then go back to sleep again.
+ *************all of it later....
+  ++static void wakeup_bdflush(int wait)
+      ::     
+   
+
+STILL LOWER layer functions are provided by 
+                         2.  block_dev.c
+
+  ++int block_write(struct inode * inode, struct file * filp, const char * buf,
+                             int  count)
+      ::if inode->i_rdev is mounted read_only,return -EPERM for error.
+      blocksize is made to have the block size of device from blocksize_size[]
+      blocksize_bits will have the no of bits in the blocksize value.
+   ??????????i didnot understand the rest of it.. will get to it later.
+   
+
