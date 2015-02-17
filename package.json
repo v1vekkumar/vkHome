@@ -1,6 +1,6 @@
 {
-  "name": "VivekKumarHomepage",
-  "version": "1.0.0",
+  "name": "vkhome"
+  "version": "0.0.1",
   "description": "Vivek Kumar's Homepage",
   "main": "index.js",
   "scripts": {
