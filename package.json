@@ -1,0 +1,28 @@
+{
+  "name": "VivekKumarHomepage",
+  "version": "1.0.0",
+  "description": "Vivek Kumar's Homepage",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:vzk/vkHome.git"
+  },
+  "keywords": [
+    "Vivek",
+    "Kumar",
+    "Homepage"
+  ],
+  "author": "Vivek Kumar",
+  "license": "propritory",
+  "bugs": {
+    "url": "https://github.com/vzk/vkHome/issues"
+  },
+  "homepage": "https://github.com/vzk/vkHome",
+  "dependencies": {
+    "connect": "^3.3.4",
+    "serve-static": "^1.8.1"
+  }
+}
