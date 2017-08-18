@@ -3,7 +3,7 @@
  var app = express();
 
 // Routing all other requests
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/docs'));
 
 
   
